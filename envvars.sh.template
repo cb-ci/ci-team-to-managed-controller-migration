@@ -1,0 +1,9 @@
+#! /bin/bash
+export BASE_URL="https://BASE_URL"
+export CJOC_URL=${BASE_URL}"/cjoc"
+export CONTROLLER_NAME="wpg"
+export CONTROLLER_URL=${BASE_URL}"/"${CONTROLLER_NAME}
+export CONTROLLER_IMAGE_VERSION="2.XXXX"
+export BUNDLE_NAME="CONTROLLER_BUNDLE_NAME"
+export TOKEN="USER:TOKEN"
+export CREATE_MM_TEMPLATE_YAML=create-mm.yaml

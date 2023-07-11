@@ -1,32 +1,27 @@
 #!/bin/bash
-export BASE_URL="https://cloudbees.luigi-lab.worldpay.io"
-export CJOC_URL=${BASE_URL}"/cjoc"
 
-export CONTROLLER_NAME="wpg"
-export CONTROLLER_URL=${BASE_URL}"/"${CONTROLLER_NAME}
-export CONTROLLER_IMAGE_VERSION="2.346.4.1"
-export BUNDLE_NAME="wpg"
-export TOKEN="adm_sivayoga756:11b0e067b85f70ca764ca1307cef6e0d77"
-export TOKEN_TEAM_LUIGI="adm_sivayoga756:11c66c19187f60a7c69ac486783c14c5b5"
-
+source ./envvars.sh
 # cat create-mm.yaml 
-envsubst < create-mm.yaml > ${CONTROLLER_NAME}.yaml
+envsubst < ${CREATE_MM_TEMPLATE_YAML} > ${CONTROLLER_NAME}.yaml
 envsubst < create-folder.yaml > ${CONTROLLER_NAME}-folder.yaml
 
 #CREATE CONTROLLER
-curl -XPOST \
-    --user $TOKEN \
-    "${CJOC_URL}/casc-items/create-items" \
-     -H "Content-Type:text/yaml" \
-    --data-binary @${CONTROLLER_NAME}.yaml
+#curl -XPOST \
+#    --user $TOKEN \
+#    "${CJOC_URL}/casc-items/create-items" \
+#     -H "Content-Type:text/yaml" \
+#    --data-binary @${CONTROLLER_NAME}.yaml
+#
+## wait until controller is deployed
+#echo "sleep "
+#sleep 180
+#kubectl rollout status statefulset.apps/${CONTROLLER_NAME}
 
-# sleep 180
-
-curl -XPOST \
+curl -v  -XPOST \
     --user $TOKEN \
     "${CONTROLLER_URL}/casc-items/create-items" \
      -H "Content-Type:text/yaml" \
-    --data-binary @${CONTROLLER_NAME}-folder.yaml
+    --data-binary @${CONTROLLER_NAME}-folder.yaml -o output.log
 
 # curl  -XPOST -u ${TOKEN} ${CONTROLLER_URL}/casc-items/create-items -d @${CONTROLLER_NAME}-folder.yaml
 # curl  -XPOST -u admin:authto113527cd5c2db897c8b6eb59b3ab803f24ken ${CJOC_URL}/casc-items/create-items -d @${CONTROLLER_NAME}.yaml
@@ -42,6 +37,7 @@ curl -XPOST \
 # kubectl cp credentials-migration/update-credentials-folder-level.groovy ${CONTROLLER_NAME}-0:/var/jenkins_home/ -n cloudbees-core
 
 # EXPORT CREDENTIALS
+curl -o ./credentials-migration/export-credentials-folder-level.groovy https://raw.githubusercontent.com/cloudbees/jenkins-scripts/master/credentials-migration/export-credentials-folder-level.groovy
 curl --data-urlencode "script=$(cat ./credentials-migration/export-credentials-folder-level.groovy)" \
 --user $TOKEN ${BASE_URL}/teams-${CONTROLLER_NAME}/scriptText  -o test-folder.creds
 tail -n 1  test-folder.creds | sed  -e "s#\[\"##g"  -e "s#\"\]##g"  | tee  folder-imports.txt
@@ -49,9 +45,7 @@ tail -n 1  test-folder.creds | sed  -e "s#\[\"##g"  -e "s#\"\]##g"  | tee  folde
 # IMPORT CREDENTIALS
 kubectl cp folder-imports.txt ${CONTROLLER_NAME}-0:/var/jenkins_home/ -n cloudbees-core
 curl -o ./credentials-migration/update-credentials-folder-level.groovy https://raw.githubusercontent.com/cloudbees/jenkins-scripts/master/credentials-migration/update-credentials-folder-level.groovy  
-cat ./credentials-migration/update-credentials-folder-level.groovy | sed "s#^\/\/ encoded.*#encoded = [new File(\"/var/jenkins_home/folder-imports.txt\").text]#"
-# encoded = [new File("/home/jenkins/credentials.txt").text]
-
+sed -i  "s#^\/\/ encoded.*#encoded = [new File(\"/var/jenkins_home/folder-imports.txt\").text]#" ./credentials-migration/update-credentials-folder-level.groovy
 curl --data-urlencode "script=$(cat ./credentials-migration/update-credentials-folder-level.groovy)" \
 --user $TOKEN ${BASE_URL}/${CONTROLLER_NAME}/scriptText
 
