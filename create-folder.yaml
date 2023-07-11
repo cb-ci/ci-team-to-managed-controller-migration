@@ -1,0 +1,26 @@
+removeStrategy:
+  rbac: SYNC
+  items: NONE
+items:
+-   kind: folder
+    name: ${CONTROLLER_NAME}
+    description: ''
+    displayName: ${CONTROLLER_NAME}
+    properties:
+    - pipeline-model-docker:
+        registry:
+        dockerRegistryEndpoint: {
+            }
+        dockerLabel: ''
+    - envVars: {
+        }
+    - folderVaultConfiguration:
+        configuration:
+        vaultConfiguration:
+            skipSslVerification: false
+            failIfNotFound: true
+            timeout: 60
+    - mavenConfigFolderOverrideProperty:
+        override: false
+    - itemRestrictions:
+        filter: false
