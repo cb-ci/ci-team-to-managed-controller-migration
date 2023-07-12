@@ -6,4 +6,5 @@ export CONTROLLER_URL=${BASE_URL}"/"${CONTROLLER_NAME}
 export CONTROLLER_IMAGE_VERSION="2.XXXX"
 export BUNDLE_NAME="CONTROLLER_BUNDLE_NAME"
 export TOKEN="USER:TOKEN"
-export CREATE_MM_TEMPLATE_YAML=create-mm.yaml
+export CREATE_MM_TEMPLATE_YAML=templates/create-mm.yaml
+export CREATE_MM_FOLDER_TEMPLATE_YAML=templates/create-folder.yaml

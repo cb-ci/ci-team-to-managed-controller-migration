@@ -3,12 +3,12 @@ removeStrategy:
   items: NONE
 items:
 - kind: managedController
-  name: wpg
+  name: ${CONTROLLER_NAME}
   configuration:
     kubernetes:
       allowExternalAgents: false
       terminationGracePeriodSeconds: 1200
-      image: CloudBees CI - Managed Controller - 2.346.4.1
+      image: CloudBees CI - Managed Controller - ${CONTROLLER_IMAGE_VERSION}
       memory: 4096
       fsGroup: '1000'
       cpus: 1.0
@@ -19,31 +19,20 @@ items:
       disk: 50
       readinessFailureThreshold: 100
       livenessTimeoutSeconds: 10
-      storageClassName: nfs-client
-      domain: wpg
+      storageClassName: ssd-cloudbees-ci-cloudbees-core
+      domain:  ${CONTROLLER_NAME}
       livenessPeriodSeconds: 10
       javaOptions: -XshowSettings:vm -XX:+AlwaysPreTouch -XX:+UseG1GC -XX:+DisableExplicitGC
         -XX:+ParallelRefProcEnabled -XX:+UseStringDeduplication -Dhudson.slaves.NodeProvisioner.initialDelay=0
-      yaml: "kind: \"StatefulSet\"\nspec:\n  template:   \n    metadata:\n      annotations:\n\
-        \        prometheus.io/scrape: \"true\"\n        prometheus.io/port: \"8080\"\
-        \n        prometheus.io/path: \"//prometheus/\"\n    spec:\n      priorityClassName:\
-        \ essential-masters       \n      containers:\n      - name: \"jenkins\"\n \
-        \       volumeMounts:\n        - mountPath: /var/run/secrets/\n          name:\
-        \ ses-smtp-password\n      volumes:\n      - name: ses-smtp-password\n     \
-        \   secret:\n          defaultMode: 420\n          secretName: ses-smtp-password"
   description: ''
-  displayName: wpg
+  displayName: ${CONTROLLER_NAME}
   properties:
   - configurationAsCode:
-      bundle: wpg
+      bundle: ${BUNDLE_NAME}
   - sharedHeaderLabelOptIn:
       optIn: true
   - healthReporting:
       enabled: true
-  - optOutProperty:
-      securityEnforcerOptOutMode:
-        optOutNone: {
-          }
   - owner:
       delay: 5
       owners: ''
@@ -51,3 +40,4 @@ items:
       allowExceptions: false
   - sharedConfigurationOptOut:
       optOut: false
+
