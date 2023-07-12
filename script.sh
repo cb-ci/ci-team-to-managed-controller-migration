@@ -82,7 +82,7 @@ echo "------------------  IMPORT FOLDER CREDENTIALS  ------------------"
 curl -o ./credentials-migration/export-credentials-folder-level.groovy https://raw.githubusercontent.com/cloudbees/jenkins-scripts/master/credentials-migration/export-credentials-folder-level.groovy
 curl --data-urlencode "script=$(cat ./credentials-migration/export-credentials-folder-level.groovy)" \
 --user $TOKEN ${BASE_URL}/teams-${CONTROLLER_NAME}/scriptText  -o $GEN_DIR/test-folder.creds
-tail -n 1  test-folder.creds | sed  -e "s#\[\"##g"  -e "s#\"\]##g"  | tee  $GEN_DIR/folder-imports.txt
+tail -n 1  $GEN_DIR/test-folder.creds | sed  -e "s#\[\"##g"  -e "s#\"\]##g"  | tee  $GEN_DIR/folder-imports.txt
 
 # IMPORT FOLDER CREDENTIALS
 echo "------------------  IMPORT FOLDER CREDENTIALS  ------------------"
