@@ -3,6 +3,7 @@
 source ./envvars.sh
 
 GEN_DIR=gen
+rm -rf $GEN_DIR
 mkdir -p $GEN_DIR
 
 
@@ -22,8 +23,9 @@ curl -XPOST \
 
 # We wait until our new Managed Controller pod is up
 echo "------------------  WAITING FOR CONTROLLER TO COME UP ------------------"
-kubectl wait pods  -l tenant=${CONTROLLER_NAME} --for condition=Ready --timeout=90s
-#We have to wait until ingress is created and we call and Jenkins HealthCheck with state 200
+# kubectl wait pods  -l tenant=${CONTROLLER_NAME} --for condition=Ready --timeout=90s
+
+# We have to wait until ingress is created and we call and Jenkins HealthCheck with state 200
 while [ ! -n "$(curl  -IL  ${CONTROLLER_URL}/login | grep -o  'HTTP/2 200')" ]
 do
   echo "wait 30 sec for State HTTP 200:  ${CONTROLLER_URL}/login"
@@ -57,7 +59,19 @@ curl -v  -XPOST \
 echo "------------------  COPYING JOBS FOLDER ------------------"
 mkdir -p $GEN_DIR/teams-${CONTROLLER_NAME}-jobs
 # kubectl exec -it teams-${CONTROLLER_NAME}-0 --  tar -cvzf ${CONTROLLER_NAME}-job.tar.gz $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/
-# kubectl exec -it teams-wpg-0 --  tar -cvzf wpg-job.tar.gz gen/testfodler
+
+
+kubectl exec -it teams-${CONTROLLER_NAME}-0 --  tar -cvzf /tmp/${CONTROLLER_NAME}-job.tar.gz -C /var/jenkins_home/jobs/
+kubectl cp teams-${CONTROLLER_NAME}-0:/tmp/${CONTROLLER_NAME}-job.tar.gz $GEN_DIR
+kubectl cp $GEN_DIR ${CONTROLLER_NAME}-0:/tmp/${CONTROLLER_NAME}-job.tar.gz
+kubectl exec -it ${CONTROLLER_NAME}-0 --  tar -xvf /tmp/${CONTROLLER_NAME}-job.tar.gz -C /var/jenkins_home/jobs/ 
+curl -u ${TOKEN} -X POST ${CONTROLLER_URL}/reload
+
+# kubectl exec -it teams-wpg-0 --  tar -cvzf /tmp/wpg-job.tar.gz /var/jenkins_home/jobs/
+# kubectl cp teams-wpg-0:/tmp/wpg-job.tar.gz testfodler/wpg-job.tar.gz
+# kubectl cp testfodler/wpg-job.tar.gz wpg-0:tmp/wpg-job.tar.gz
+# kubectl exec -it wpg-0 --  tar -xvf /tmp/wpg-job.tar.gz
+
 
 kubectl cp teams-${CONTROLLER_NAME}-0:/var/jenkins_home/jobs/  $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/
 kubectl cp $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/. ${CONTROLLER_NAME}-0:/var/jenkins_home/jobs/
