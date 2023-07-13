@@ -37,8 +37,6 @@ items:
               containers:
                 - name: "jenkins"
                   volumeMounts:
-                    - name: "tmp"
-                      mountPath: "/tmp"
                     - name: "backup"
                       mountPath: "/backup"
               volumes:
