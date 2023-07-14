@@ -18,7 +18,7 @@ To automate the migration from TC to MC, the following phases are required (take
 * COPY JOBS FROM TC TO MC
 * MIGRATE CREDENTIALS
 
-if you see the [script.sh](script.sh), it contains the steps for the phases above.
+if you see the [migrateTC2MC.sh script](./migrateTC2MC.sh), it contains the steps for the phases above.
 
 # How to start
 
@@ -26,9 +26,9 @@ if you see the [script.sh](script.sh), it contains the steps for the phases abov
   * Optional: For testing purposes, create some jobs on the TC (or use existing ones)
 * copy `envvars.sh.template`  to `envvars.sh`
   * ``` cp envvars.sh.template envvars.sh```
-  * Adjust your variables in your `envvars.sh` file, see [Envvars](## Envvars)
+  * Adjust your variables in your `envvars.sh` file, see [Envvars](##\ Envvars)
 * Execute the migration script
-  * ```./script.sh ```
+  * ```./migrateTC2MC.sh ```
 * See the `gen` dir and logs
 
 
