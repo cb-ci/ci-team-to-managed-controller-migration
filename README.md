@@ -11,14 +11,14 @@ Read about the required steps and background here:
 * https://docs.cloudbees.com/docs/cloudbees-ci-kb/latest/client-and-managed-controllers/migrating-jenkins-instances 
 * https://docs.cloudbees.com/docs/cloudbees-ci/latest/cloud-setup-guide/using-teams 
 
-To automate the migration from TC to MC, the following steps are required (taken from he documentation links above) 
+To automate the migration from TC to MC, the following phases are required (taken from he documentation links above) 
 
 * CREATE MC
 * ON MC: create target folder (where to migrate the Teams/teams root folder to )
 * COPY JOBS FROM TC TO MC
 * MIGRATE CREDENTIALS
 
-if you see the `script.sh`it contains the steps for the phases above.
+if you see the [script.sh](script.sh), it contains the steps for the phases above.
 
 # How to start
 
