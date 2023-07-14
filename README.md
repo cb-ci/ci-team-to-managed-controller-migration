@@ -25,14 +25,14 @@ if you see the `script.sh`it contains the steps for the phases above.
 * Create a TC you want to migrate  to MC
 * Optional: create some jobs (or use existing ones)
 * copy `envvars.sh.template`  to `envvars.sh`
-  * ``` cp envvars.sh.template envvars.sj```
-  * Adjust your variables, see the comments 
+  * ``` cp envvars.sh.template envvars.sh```
+  * Adjust your variables in your `envvars.sh` file, see [Envvars](## Envvars)
 * Execute the migration script
   * ```./script.sh ```
 * See the `gen` dir and logs
 
 
-## Envars
+## Envvars
 
 | VARIABLE                         | VALUE/Description            | 
 |----------------------------------|------------------------------| 
