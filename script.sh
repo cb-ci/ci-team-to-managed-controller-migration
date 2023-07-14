@@ -63,23 +63,12 @@ curl -v  -XPOST \
 # We copy the jobs folder recurisive from TC to the new folder on MC
 echo "------------------  COPYING JOBS FOLDER ------------------"
 mkdir -p $GEN_DIR/teams-${CONTROLLER_NAME}-jobs
-# kubectl exec -it teams-${CONTROLLER_NAME}-0 --  tar -cvzf ${CONTROLLER_NAME}-job.tar.gz $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/
+#kubectl exec -it teams-${CONTROLLER_NAME}-0 --  tar -cvzf /tmp/${CONTROLLER_NAME}-job.tar.gz -C /var/jenkins_home/jobs/
+kubectl cp teams-${CONTROLLER_NAME}-0:/var/jenkins_home/jobs/${CONTROLLER_NAME}/jobs $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/
+kubectl cp $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/. ${CONTROLLER_NAME}-0:/var/jenkins_home/jobs/${CONTROLLER_NAME}/
+#kubectl exec -it ${CONTROLLER_NAME}-0 --  tar -xvf /tmp/${CONTROLLER_NAME}-job.tar.gz -C /var/jenkins_home/jobs/ 
 
-
-kubectl exec -it teams-${CONTROLLER_NAME}-0 --  tar -cvzf /tmp/${CONTROLLER_NAME}-job.tar.gz -C /var/jenkins_home/jobs/
-kubectl cp teams-${CONTROLLER_NAME}-0:/tmp/${CONTROLLER_NAME}-job.tar.gz $GEN_DIR
-kubectl cp $GEN_DIR ${CONTROLLER_NAME}-0:/tmp/${CONTROLLER_NAME}-job.tar.gz
-kubectl exec -it ${CONTROLLER_NAME}-0 --  tar -xvf /tmp/${CONTROLLER_NAME}-job.tar.gz -C /var/jenkins_home/jobs/ 
-curl -u ${TOKEN} -X POST ${CONTROLLER_URL}/reload
-
-# kubectl exec -it teams-wpg-0 --  tar -cvzf /tmp/wpg-job.tar.gz /var/jenkins_home/jobs/
-# kubectl cp teams-wpg-0:/tmp/wpg-job.tar.gz testfodler/wpg-job.tar.gz
-# kubectl cp testfodler/wpg-job.tar.gz wpg-0:tmp/wpg-job.tar.gz
-# kubectl exec -it wpg-0 --  tar -xvf /tmp/wpg-job.tar.gz
-
-
-kubectl cp teams-${CONTROLLER_NAME}-0:/var/jenkins_home/jobs/  $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/
-kubectl cp $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/. ${CONTROLLER_NAME}-0:/var/jenkins_home/jobs/
+curl -u ${TOKEN} -X POST ${CONTROLLER_URL}/restart
 
 
 # EXPORT FOLDER CREDENTIALS
