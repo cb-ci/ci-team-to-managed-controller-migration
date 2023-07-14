@@ -32,18 +32,18 @@ if you see the `script.sh`it contains the steps for the phases above.
 * See the `gen` dir and logs
 
 
-## envars
+## Envars
 
-| VARIABLE  | VALUE | DESCRIPTION |
-| ------------- | ------------- | |
-| BASE_URL | https://ci.example.com  | the base url of the ci installation |
-| CJOC_URL | ${BASE_URL}/cjoc | cjoc URL | 
-| CONTROLLER_NAME | ciController001 | the new Controller name. Assumption is: There is allready a testcontroller present  | 
-| CONTROLLER_IMAGE_VERSION | 2.401.2.5  | | 
-| BUNDLE_NAME | mycontrollerbundlename  | | 
-| TOKEN | user:123XYZ | | 
-| CREATE_MM_TEMPLATE_YAML | templates/create-mm.yaml | | 
-| CREATE_MM_FOLDER_TEMPLATE_YAML | templates/create-folder.yaml | | 
+| VARIABLE                         | VALUE/Description            | 
+|----------------------------------|------------------------------| 
+| `BASE_URL`                       | https://ci.example.com       | 
+| `CJOC_URL`                       | ${BASE_URL}/cjoc             | 
+| `CONTROLLER_NAME`                | ciController001              | 
+| `CONTROLLER_IMAGE_VERSION`       | 2.401.2.5                    | 
+| `BUNDLE_NAME`                    | mycontrollerbundlename       | 
+| `TOKEN`                          | user:123XYZ                  | 
+| `CREATE_MM_TEMPLATE_YAML`        | templates/create-mm.yaml     | 
+| `CREATE_MM_FOLDER_TEMPLATE_YAML` | templates/create-folder.yaml | 
 
 
 # JSON API 
