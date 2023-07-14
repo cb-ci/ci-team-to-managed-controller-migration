@@ -34,7 +34,26 @@ if you see the `script.sh`it contains the steps for the phases above.
 
 # JSON API 
 * https://www.cloudbees.com/blog/taming-jenkins-json-api-depth-and-tree
+* https://gist.github.com/justlaputa/5634984
 * https://garygeorge84.medium.com/jenkins-api-with-node-4d3826322367
 
-> curl -u $TOKEN "https://sda.acaternberg.flow-training.beescloud.com/cjoc/view/all/job/Teams/api/json&tree=jobs[name,lastBuild[number,duration,timestamp,result,changeSet[items[msg,author[fullName]]]]]"
-> curl -u $TOKEN "https://sda.acaternberg.flow-training.beescloud.com/cjoc/view/all/job/Teams/api/json?depth=2&pretty=true?tree=jobs" | jq
+## Examples
+
+```
+ curl -u $TOKEN "https://$BASSE_URL/cjoc/view/all/job/Teams/api/json?pretty=true&tree=jobs\[name,url\]"
+{
+  "_class" : "com.cloudbees.hudson.plugins.folder.Folder",
+  "jobs" : [
+    {
+      "_class" : "com.cloudbees.opscenter.server.model.ManagedMaster",
+      "name" : "team1",
+      "url" : "https://example.com/cjoc/view/all/job/Teams/job/team1/"
+    }
+  ]
+}
+```
+
+````
+curl -u $TOKEN "https://$BASSE_URL/cjoc/view/all/job/Teams/api/json?depth=2&pretty=true?tree=jobs" | jq
+````
+
