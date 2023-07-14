@@ -28,7 +28,7 @@ curl -XPOST \
 echo "------------------  WAITING FOR CONTROLLER TO COME UP ------------------"
 # kubectl wait pods  -l tenant=${CONTROLLER_NAME} --for condition=Ready --timeout=90s
 
-# We have to wait until ingress is created and we call and Jenkins HealthCheck with state 200
+# We have to wait until ingress is created. We call the Jenkins HealthCheck URL to check for HTTP state 200 (means Jenkins is up and taken into account)
 while [ ! -n "$(curl  -IL  ${CONTROLLER_URL}/login | grep -o  'HTTP/2 200')" ]
 do
   echo "wait 30 sec for State HTTP 200:  ${CONTROLLER_URL}/login"
