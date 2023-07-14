@@ -10,7 +10,7 @@ GEN_DIR=gen
 rm -rf $GEN_DIR
 mkdir -p $GEN_DIR
 
-# We render the CasC template instanmces for cjoc-cintroller-items.yaml  and the casc-folder (target folder)
+# We render the CasC template instances for cjoc-cpntroller-items.yaml  and the casc-folder (target folder)
 # All variables from the envvars.sh will be substituted 
 envsubst < ${CREATE_MM_TEMPLATE_YAML} > $GEN_DIR/${CONTROLLER_NAME}.yaml
 envsubst < ${CREATE_MM_FOLDER_TEMPLATE_YAML} > $GEN_DIR/${CONTROLLER_NAME}-folder.yaml
@@ -19,7 +19,7 @@ envsubst < ${CREATE_MM_FOLDER_TEMPLATE_YAML} > $GEN_DIR/${CONTROLLER_NAME}-folde
 kubens $NAMESPACE
 
 #CREATE MC CONTROLLER
-# We apply the cjoc-cintroller-items.yaml to cjoc. Cjoc will create a new MC for us using our $GEN_DIR/${CONTROLLER_NAME}.yaml 
+# We apply the cjoc-controller-items.yaml to cjoc. Cjoc will create a new MC for us using our $GEN_DIR/${CONTROLLER_NAME}.yaml
 echo "------------------  CREATING MANAGED CONTROLLER ------------------"
 curl -XPOST \
    --user $TOKEN \
@@ -51,8 +51,6 @@ curl -v  -XPOST \
 
 
 # curl  -XPOST -u ${TOKEN} ${CONTROLLER_URL}/casc-items/create-items -d @${CONTROLLER_NAME}-folder.yaml
-# curl  -XPOST -u admin:authto113527cd5c2db897c8b6eb59b3ab803f24ken ${CJOC_URL}/casc-items/create-items -d @${CONTROLLER_NAME}.yaml
-
 # sleep 180
 
 # COPY CREDENTIAL IMPORT SCRIPT TO TARGET POD
@@ -74,7 +72,12 @@ kubectl cp $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/. ${CONTROLLER_NAME}-0:/var/je
 
 
 curl -u ${TOKEN} -X POST ${CONTROLLER_URL}/restart
-
+# We have to wait until ingress is created. We call the Jenkins HealthCheck URL to check for HTTP state 200 (means Jenkins is up and taken into account)
+while [ ! -n "$(curl  -IL  ${CONTROLLER_URL}/login | grep -o  'HTTP/2 200')" ]
+do
+  echo "wait 30 sec for State HTTP 200:  ${CONTROLLER_URL}/login"
+  sleep 30
+done
 
 # EXPORT FOLDER CREDENTIALS
 echo "------------------  IMPORT FOLDER CREDENTIALS  ------------------"
