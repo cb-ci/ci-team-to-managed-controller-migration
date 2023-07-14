@@ -1,7 +1,5 @@
 #! /bin/bash
-echo HALLO
 source ./envvars.sh
-
 ##This script will request the set of connected Team Controllers from Cjoc
 #Cjoc return an array in this format
 #{
