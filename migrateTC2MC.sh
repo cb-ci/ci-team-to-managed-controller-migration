@@ -2,6 +2,10 @@
 
 source ./envvars.sh
 
+#In case we trigger this script from a loop, it will take the controller name from the fhe first parameter $1
+export CONTROLLER_NAME=${1:-$CONTROLLER_NAME}
+export CONTROLLER_URL=${BASE_URL}"/"${CONTROLLER_NAME}
+
 GEN_DIR=gen
 rm -rf $GEN_DIR
 mkdir -p $GEN_DIR
@@ -81,7 +85,7 @@ tail -n 1  $GEN_DIR/test-folder.creds | sed  -e "s#\[\"##g"  -e "s#\"\]##g"  | t
 
 # IMPORT FOLDER CREDENTIALS
 echo "------------------  IMPORT FOLDER CREDENTIALS  ------------------"
-kubectl cp folder-imports.txt ${CONTROLLER_NAME}-0:/var/jenkins_home/
+kubectl cp $GEN_DIR/folder-imports.txt ${CONTROLLER_NAME}-0:/var/jenkins_home/
 curl -o ./credentials-migration/update-credentials-folder-level.groovy https://raw.githubusercontent.com/cloudbees/jenkins-scripts/master/credentials-migration/update-credentials-folder-level.groovy  
 cat ./credentials-migration/update-credentials-folder-level.groovy | sed  "s#^\/\/ encoded.*#encoded = [new File(\"/var\/jenkins_home\/folder-imports.txt\").text]#g" >  $GEN_DIR/update-credentials-folder-level.groovy
 curl --data-urlencode "script=$(cat $GEN_DIR/update-credentials-folder-level.groovy)" \
