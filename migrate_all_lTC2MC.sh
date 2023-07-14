@@ -19,7 +19,6 @@ source ./envvars.sh
 jq -cr '.jobs[] | (.name)' <<< $(curl -u $TOKEN "$CJOC_URL/view/all/job/Teams/api/json?pretty=true&tree=jobs\[name,url\]"
 ) | while read teamcontroller; do
    echo "TC: $teamcontroller"
-   #echo "TC: $name URL:$url"
    # We can now call the migration script
    # ./migrateTC2MC.sh $name
 done
