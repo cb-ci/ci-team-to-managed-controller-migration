@@ -18,10 +18,13 @@ source ./envvars.sh
 # If more details are required, pleas adjust the json queries to your need
 # Alternative you can iterate over an static bash array with an for/while loop
 
-jq -cr '.jobs[] | (.name, .url)' <<< $(curl -u $TOKEN "$CJOC_URL/view/all/job/Teams/api/json?pretty=true&tree=jobs\[name,url\]"
+jq -cr '.jobs[] | (.name)' <<< $(curl -u $TOKEN "$CJOC_URL/view/all/job/Teams/api/json?pretty=true&tree=jobs\[name,url\]"
 ) | while read teamcontroller; do
-   echo "TC: $name URL:$url"
+   echo "TC: $teamcontroller"
+   #echo "TC: $name URL:$url"
    # We can now call the migration script
    # ./migrateTC2MC.sh $name
 done
+
+
 
