@@ -6,13 +6,16 @@ GEN_DIR=gen
 rm -rf $GEN_DIR
 mkdir -p $GEN_DIR
 
-
+# We render the CasC template instanmces for cjoc-cintroller-items.yaml  and the casc-folder (target folder)
+# All variables from the envvars.sh will be substituted 
 envsubst < ${CREATE_MM_TEMPLATE_YAML} > $GEN_DIR/${CONTROLLER_NAME}.yaml
 envsubst < ${CREATE_MM_FOLDER_TEMPLATE_YAML} > $GEN_DIR/${CONTROLLER_NAME}-folder.yaml
 
+# We switch th the cloudbees namespace, where the TC runs
 kubens $NAMESPACE
 
-#CREATE CONTROLLER
+#CREATE MC CONTROLLER
+# We apply the cjoc-cintroller-items.yaml to cjoc. Cjoc will create a new MC for us using our $GEN_DIR/${CONTROLLER_NAME}.yaml 
 echo "------------------  CREATING MANAGED CONTROLLER ------------------"
 curl -XPOST \
    --user $TOKEN \
@@ -42,6 +45,7 @@ curl -v  -XPOST \
      -H "Content-Type:text/yaml" \
     --data-binary @$GEN_DIR/${CONTROLLER_NAME}-folder.yaml -o $GEN_DIR/create-folder-output.log
 
+
 # curl  -XPOST -u ${TOKEN} ${CONTROLLER_URL}/casc-items/create-items -d @${CONTROLLER_NAME}-folder.yaml
 # curl  -XPOST -u admin:authto113527cd5c2db897c8b6eb59b3ab803f24ken ${CJOC_URL}/casc-items/create-items -d @${CONTROLLER_NAME}.yaml
 
@@ -56,26 +60,16 @@ curl -v  -XPOST \
 # kubectl cp credentials-migration/update-credentials-folder-level.groovy ${CONTROLLER_NAME}-0:/var/jenkins_home/ 
 
 # COPY JOBS
+# We copy the jobs folder recurisive from TC to the new folder on MC
 echo "------------------  COPYING JOBS FOLDER ------------------"
 mkdir -p $GEN_DIR/teams-${CONTROLLER_NAME}-jobs
-# kubectl exec -it teams-${CONTROLLER_NAME}-0 --  tar -cvzf ${CONTROLLER_NAME}-job.tar.gz $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/
+#kubectl exec -it teams-${CONTROLLER_NAME}-0 --  tar -cvzf /tmp/${CONTROLLER_NAME}-job.tar.gz -C /var/jenkins_home/jobs/
+kubectl cp teams-${CONTROLLER_NAME}-0:/var/jenkins_home/jobs/${CONTROLLER_NAME}/jobs/ $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/
+kubectl cp $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/. ${CONTROLLER_NAME}-0:/var/jenkins_home/jobs/${CONTROLLER_NAME}/
+#kubectl exec -it ${CONTROLLER_NAME}-0 --  tar -xvf /tmp/${CONTROLLER_NAME}-job.tar.gz -C /var/jenkins_home/jobs/ 
 
 
-kubectl exec -it teams-${CONTROLLER_NAME}-0 --  tar -cvzf /tmp/${CONTROLLER_NAME}-job.tar.gz /var/jenkins_home/jobs/
-
-kubectl cp teams-${CONTROLLER_NAME}-0:/tmp/${CONTROLLER_NAME}-job.tar.gz $GEN_DIR
-kubectl cp $GEN_DIR ${CONTROLLER_NAME}-0:/tmp/${CONTROLLER_NAME}-job.tar.gz
-kubectl exec -it ${CONTROLLER_NAME}-0 --  tar -xvf /tmp/${CONTROLLER_NAME}-job.tar.gz -C /var/jenkins_home/jobs/ 
-curl -u ${TOKEN} -X POST ${CONTROLLER_URL}/reload
-
-# kubectl exec -it teams-wpg-0 --  tar -cvzf /tmp/wpg-job.tar.gz /var/jenkins_home/jobs/
-# kubectl cp teams-wpg-0:/tmp/wpg-job.tar.gz testfodler/wpg-job.tar.gz
-# kubectl cp testfodler/wpg-job.tar.gz wpg-0:tmp/wpg-job.tar.gz
-# kubectl exec -it wpg-0 --  tar -xvf /tmp/wpg-job.tar.gz
-
-
-kubectl cp teams-${CONTROLLER_NAME}-0:/var/jenkins_home/jobs/  $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/
-kubectl cp $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/. ${CONTROLLER_NAME}-0:/var/jenkins_home/jobs/
+curl -u ${TOKEN} -X POST ${CONTROLLER_URL}/restart
 
 
 # EXPORT FOLDER CREDENTIALS
