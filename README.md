@@ -13,9 +13,9 @@ Read about the required steps and background here:
 
 To automate the migration from TC to MC, the following steps are required (taken from he documentation links above) 
 
-* CREATE TARGET MC
+* CREATE MC
 * ON MC: create target folder (where to migrate the Teams/teams root folder to )
-* COPY JOBS (recursive and folders) FROM TC TO MC
+* COPY JOBS FROM TC TO MC
 * MIGRATE CREDENTIALS
 
 if you see the `script.sh`it contains the steps for the phases above.
@@ -30,6 +30,20 @@ if you see the `script.sh`it contains the steps for the phases above.
 * Execute the migration script
   * ```./script.sh ```
 * See the `gen` dir and logs
+
+
+## envars
+
+| VARIABLE  | VALUE | DESCRIPTION |
+| ------------- | ------------- | |
+| BASE_URL | https://ci.example.com  | the base url of the ci installation |
+| CJOC_URL | ${BASE_URL}/cjoc | cjoc URL | 
+| CONTROLLER_NAME | ciController001 | the new Controller name. Assumption is: There is allready a testcontroller present  | 
+| CONTROLLER_IMAGE_VERSION | 2.401.2.5  | | 
+| BUNDLE_NAME | mycontrollerbundlename  | | 
+| TOKEN | user:123XYZ | | 
+| CREATE_MM_TEMPLATE_YAML | templates/create-mm.yaml | | 
+| CREATE_MM_FOLDER_TEMPLATE_YAML | templates/create-folder.yaml | | 
 
 
 # JSON API 
