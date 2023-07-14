@@ -64,9 +64,10 @@ curl -v  -XPOST \
 echo "------------------  COPYING JOBS FOLDER ------------------"
 mkdir -p $GEN_DIR/teams-${CONTROLLER_NAME}-jobs
 #kubectl exec -it teams-${CONTROLLER_NAME}-0 --  tar -cvzf /tmp/${CONTROLLER_NAME}-job.tar.gz -C /var/jenkins_home/jobs/
-kubectl cp teams-${CONTROLLER_NAME}-0:/var/jenkins_home/jobs/${CONTROLLER_NAME}/jobs $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/
+kubectl cp teams-${CONTROLLER_NAME}-0:/var/jenkins_home/jobs/${CONTROLLER_NAME}/jobs/ $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/
 kubectl cp $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/. ${CONTROLLER_NAME}-0:/var/jenkins_home/jobs/${CONTROLLER_NAME}/
 #kubectl exec -it ${CONTROLLER_NAME}-0 --  tar -xvf /tmp/${CONTROLLER_NAME}-job.tar.gz -C /var/jenkins_home/jobs/ 
+
 
 curl -u ${TOKEN} -X POST ${CONTROLLER_URL}/restart
 
