@@ -61,7 +61,8 @@ mkdir -p $GEN_DIR/teams-${CONTROLLER_NAME}-jobs
 # kubectl exec -it teams-${CONTROLLER_NAME}-0 --  tar -cvzf ${CONTROLLER_NAME}-job.tar.gz $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/
 
 
-kubectl exec -it teams-${CONTROLLER_NAME}-0 --  tar -cvzf /tmp/${CONTROLLER_NAME}-job.tar.gz -C /var/jenkins_home/jobs/
+kubectl exec -it teams-${CONTROLLER_NAME}-0 --  tar -cvzf /tmp/${CONTROLLER_NAME}-job.tar.gz /var/jenkins_home/jobs/
+
 kubectl cp teams-${CONTROLLER_NAME}-0:/tmp/${CONTROLLER_NAME}-job.tar.gz $GEN_DIR
 kubectl cp $GEN_DIR ${CONTROLLER_NAME}-0:/tmp/${CONTROLLER_NAME}-job.tar.gz
 kubectl exec -it ${CONTROLLER_NAME}-0 --  tar -xvf /tmp/${CONTROLLER_NAME}-job.tar.gz -C /var/jenkins_home/jobs/ 
