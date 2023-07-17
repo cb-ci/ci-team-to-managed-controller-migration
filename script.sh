@@ -6,6 +6,15 @@ GEN_DIR=gen
 rm -rf $GEN_DIR
 mkdir -p $GEN_DIR
 
+function checkControllerOnline () {
+  # We have to wait until ingress is created and we call and Jenkins HealthCheck with state 200
+  while [ ! -n "$(curl  -IL  ${CONTROLLER_URL}/login | grep -o  'HTTP/2 200')" ]
+  do
+    echo "wait 30 sec for State HTTP 200:  ${CONTROLLER_URL}/login"
+    sleep 30
+  done
+}
+
 # We render the CasC template instanmces for cjoc-cintroller-items.yaml  and the casc-folder (target folder)
 # All variables from the envvars.sh will be substituted 
 envsubst < ${CREATE_MM_TEMPLATE_YAML} > $GEN_DIR/${CONTROLLER_NAME}.yaml
@@ -23,18 +32,9 @@ curl -XPOST \
     -H "Content-Type:text/yaml" \
    --data-binary @$GEN_DIR/${CONTROLLER_NAME}.yaml
 
-
 # We wait until our new Managed Controller pod is up
 echo "------------------  WAITING FOR CONTROLLER TO COME UP ------------------"
-# kubectl wait pods  -l tenant=${CONTROLLER_NAME} --for condition=Ready --timeout=90s
-
-# We have to wait until ingress is created and we call and Jenkins HealthCheck with state 200
-while [ ! -n "$(curl  -IL  ${CONTROLLER_URL}/login | grep -o  'HTTP/2 200')" ]
-do
-  echo "wait 30 sec for State HTTP 200:  ${CONTROLLER_URL}/login"
-  sleep 30
-done
-
+checkControllerOnline
 
 # Now we apply the target Folder to the Managed Controller.
 # This is the root Folder where we want to migrate our credentials and jobs to
@@ -64,13 +64,13 @@ curl -v  -XPOST \
 echo "------------------  COPYING JOBS FOLDER ------------------"
 mkdir -p $GEN_DIR/teams-${CONTROLLER_NAME}-jobs
 #kubectl exec -it teams-${CONTROLLER_NAME}-0 --  tar -cvzf /tmp/${CONTROLLER_NAME}-job.tar.gz -C /var/jenkins_home/jobs/
-kubectl cp teams-${CONTROLLER_NAME}-0:/var/jenkins_home/jobs/${CONTROLLER_NAME}/jobs/ $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/
-kubectl cp $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/. ${CONTROLLER_NAME}-0:/var/jenkins_home/jobs/${CONTROLLER_NAME}/
+kubectl cp teams-${CONTROLLER_NAME}-0:var/jenkins_home/jobs/${CONTROLLER_NAME}/jobs/ $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/
+kubectl cp $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/. ${CONTROLLER_NAME}-0:var/jenkins_home/jobs/${CONTROLLER_NAME}/jobs
 #kubectl exec -it ${CONTROLLER_NAME}-0 --  tar -xvf /tmp/${CONTROLLER_NAME}-job.tar.gz -C /var/jenkins_home/jobs/ 
 
-
+# TODO replace with reload configuration disk
 curl -u ${TOKEN} -X POST ${CONTROLLER_URL}/restart
-
+checkControllerOnline
 
 # EXPORT FOLDER CREDENTIALS
 echo "------------------  IMPORT FOLDER CREDENTIALS  ------------------"
@@ -105,4 +105,4 @@ curl --data-urlencode "script=$(cat $GEN_DIR/update-credentials-folder-level.gro
 --user $TOKEN ${BASE_URL}/${CONTROLLER_NAME}/scriptText
 
 # curl --data-urlencode "script=$(cat /tmp/system-message-example.groovy)" -v --user ${TOKEN_TEAM_LUIGI} ${BASE_URL}/teams-luigi/scriptText
-kctl exec -ti pod -- tar - xvzf /tmp/jobs.tar.gp   -C /var/jenkins_home/jobs
+# kctl exec -ti pod -- tar - xvzf /tmp/jobs.tar.gp   -C /var/jenkins_home/jobs
