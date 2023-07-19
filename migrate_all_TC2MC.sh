@@ -1,8 +1,8 @@
 #! /bin/bash
 source ./envvars.sh
 ##This script will request the set of connected Team Controllers from Cjoc
-#Cjoc return an array in this format
-#{
+#Cjoc returns an array in this format
+# {
 #  "_class" : "com.cloudbees.hudson.plugins.folder.Folder",
 #  "jobs" : [
 #    {
@@ -12,9 +12,9 @@ source ./envvars.sh
 #    }
 #  ]
 #}
-# The scripts iterates over all TC and return names and urls
-# If more details are required, pleas adjust the json queries to your need
-# Alternative you can iterate over an static bash array with an for/while loop
+# The scripts iterate over all TC and return names and URLs
+# If more details are required, please adjust the JSON queries to your need
+# Alternative you can iterate over a static bash array with a for/while loop
 
 jq -cr '.jobs[] | (.name)' <<< $(curl -u $TOKEN "$CJOC_URL/view/all/job/Teams/api/json?pretty=true&tree=jobs\[name,url\]"
 ) | while read teamcontroller; do
