@@ -70,12 +70,12 @@ kubectl cp teams-${CONTROLLER_NAME}-0:var/jenkins_home/jobs/${CONTROLLER_NAME}/j
 kubectl cp $GEN_DIR/teams-${CONTROLLER_NAME}-jobs/. ${CONTROLLER_NAME}-0:var/jenkins_home/jobs/${CONTROLLER_NAME}/jobs
 #kubectl exec -it ${CONTROLLER_NAME}-0 --  tar -xvf /tmp/${CONTROLLER_NAME}-job.tar.gz -C /var/jenkins_home/jobs/ 
 
-# TODO replace with reload configuration disk
+# Now we restart the MC
 curl -u ${TOKEN} -X POST ${CONTROLLER_URL}/restart
 checkControllerOnline
 
 # EXPORT FOLDER CREDENTIALS
-echo "------------------  IMPORT FOLDER CREDENTIALS  ------------------"
+echo "------------------  EXPORT FOLDER CREDENTIALS  ------------------"
 curl -o ./credentials-migration/export-credentials-folder-level.groovy https://raw.githubusercontent.com/cloudbees/jenkins-scripts/master/credentials-migration/export-credentials-folder-level.groovy
 curl --data-urlencode "script=$(cat ./credentials-migration/export-credentials-folder-level.groovy)" \
 --user $TOKEN ${BASE_URL}/teams-${CONTROLLER_NAME}/scriptText  -o $GEN_DIR/test-folder.creds
@@ -90,7 +90,7 @@ curl --data-urlencode "script=$(cat $GEN_DIR/update-credentials-folder-level.gro
 --user $TOKEN ${BASE_URL}/${CONTROLLER_NAME}/scriptText
 
 # EXPORT SYSTEM CREDENTIALS
-echo "------------------  IMPORT SYSTEM CREDENTIALS  ------------------"
+echo "------------------  EXPORT SYSTEM CREDENTIALS  ------------------"
 curl -o ./credentials-migration/export-credentials-system-level.groovy https://raw.githubusercontent.com/cloudbees/jenkins-scripts/master/credentials-migration/export-credentials-system-level.groovy
 
 curl --data-urlencode "script=$(cat ./credentials-migration/export-credentials-system-level.groovy)" \
