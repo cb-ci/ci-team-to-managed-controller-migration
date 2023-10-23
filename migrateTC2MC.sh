@@ -42,7 +42,7 @@ checkControllerOnline
 
 # Now we apply the target Folder to the Managed Controller.
 # This is the root Folder where we want to migrate our credentials and jobs to
-echo "------------------  CREATING INITAL TEAM FOLDER ------------------"
+echo "------------------  CREATING INITIAL TEAM FOLDER ------------------"
 curl -v  -XPOST \
     --user $TOKEN \
     "${CONTROLLER_URL}/casc-items/create-items" \
