@@ -2,12 +2,12 @@ removeStrategy:
   rbac: SYNC
   items: NONE
 items:
--   kind: folder
-    name: ${CONTROLLER_NAME}
-    description: ''
-    displayName: ${CONTROLLER_NAME}
-    properties:
-    - envVars: {
-        }
-    - itemRestrictions:
-        filter: false
+- kind: folder
+  name: ${CONTROLLER_NAME}
+  description: ''
+  displayName: ${CONTROLLER_NAME}
+  properties:
+  - envVars: {
+      }
+  - itemRestrictions:
+      filter: false
