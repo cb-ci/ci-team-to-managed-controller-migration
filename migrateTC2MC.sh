@@ -48,18 +48,8 @@ curl -v  -XPOST \
     "${CONTROLLER_URL}/casc-items/create-items" \
      -H "Content-Type:text/yaml" \
     --data-binary @$GEN_DIR/${CONTROLLER_NAME}-folder.yaml -o $GEN_DIR/create-folder-output.log
-
-
 # curl  -XPOST -u ${TOKEN} ${CONTROLLER_URL}/casc-items/create-items -d @${CONTROLLER_NAME}-folder.yaml
 # sleep 180
-
-# COPY CREDENTIAL EXPORT SCRIPT TO TC POD
-kubectl cp credentials-migration/export-credentials-system-level.groovy teams-${CONTROLLER_NAME}-0:/var/jenkins_home/
-kubectl cp credentials-migration/export-credentials-folder-level.groovy teams-${CONTROLLER_NAME}-0:/var/jenkins_home/
-
-# COPY CREDENTIAL IMPORT SCRIPT TO MC POD
-kubectl cp credentials-migration/update-credentials-system-level.groovy ${CONTROLLER_NAME}-0:/var/jenkins_home/
-kubectl cp credentials-migration/update-credentials-folder-level.groovy ${CONTROLLER_NAME}-0:/var/jenkins_home/
 
 # COPY JOBS
 # We copy the jobs folder recursive from TC to the new folder on MC
