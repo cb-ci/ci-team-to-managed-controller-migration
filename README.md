@@ -26,7 +26,7 @@ if you see the [migrateTC2MC.sh script](./migrateTC2MC.sh), it contains the step
   * Optional: For testing purposes, create some jobs on the TC (or use existing ones)
 * copy `envvars.sh.template`  to `envvars.sh`
   * ``` cp envvars.sh.template envvars.sh```
-  * Adjust your variables in your `envvars.sh` file, see [Envvars](##\ Envvars)
+  * Adjust your variables in your `envvars.sh` file
 * Execute the migration script
   * ```./migrateTC2MC.sh ```
 * See the `gen` dir and logs
