@@ -82,7 +82,6 @@ curl --data-urlencode "script=$(cat $GEN_DIR/update-credentials-folder-level.gro
 # EXPORT SYSTEM CREDENTIALS
 echo "------------------  EXPORT SYSTEM CREDENTIALS  ------------------"
 curl -o ./credentials-migration/export-credentials-system-level.groovy https://raw.githubusercontent.com/cloudbees/jenkins-scripts/master/credentials-migration/export-credentials-system-level.groovy
-
 curl --data-urlencode "script=$(cat ./credentials-migration/export-credentials-system-level.groovy)" \
 --user $TOKEN ${BASE_URL}/teams-${CONTROLLER_NAME}/scriptText  -o $GEN_DIR/test-system-folder.creds
 tail -n 1  $GEN_DIR/test-system-folder.creds | sed  -e "s#\[\"##g"  -e "s#\"\]##g"  | tee  $GEN_DIR/system-imports.txt
@@ -91,10 +90,6 @@ tail -n 1  $GEN_DIR/test-system-folder.creds | sed  -e "s#\[\"##g"  -e "s#\"\]##
 echo "-------------------- IMPORT SYSTEM CREDENTIALS  ------------------"
 kubectl cp $GEN_DIR/system-imports.txt ${CONTROLLER_NAME}-0:/var/jenkins_home/
 curl -o ./credentials-migration/update-credentials-system-level.groovy https://raw.githubusercontent.com/cloudbees/jenkins-scripts/master/credentials-migration/update-credentials-system-level.groovy
-
 cat ./credentials-migration/update-credentials-system-level.groovy | sed  "s#^\/\/ encoded.*#encoded = [new File(\"/var\/jenkins_home\/system-imports.txt\").text]#g" >  $GEN_DIR/update-credentials-folder-level.groovy
 curl --data-urlencode "script=$(cat $GEN_DIR/update-credentials-folder-level.groovy)" \
 --user $TOKEN ${BASE_URL}/${CONTROLLER_NAME}/scriptText
-
-# curl --data-urlencode "script=$(cat /tmp/system-message-example.groovy)" -v --user ${TOKEN_TEAM_LUIGI} ${BASE_URL}/teams-luigi/scriptText
-# kctl exec -ti pod -- tar - xvzf /tmp/jobs.tar.gp   -C /var/jenkins_home/jobs
