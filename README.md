@@ -34,13 +34,12 @@ if you see the [migrateTC2MC.sh script](./migrateTC2MC.sh), it contains the step
 
 ## Envvars
 
-| VARIABLE                         | VALUE/Description            | 
+| VARIABLE                         | VALUE/Example           | 
 |----------------------------------|------------------------------| 
 | `BASE_URL`                       | https://ci.example.com       | 
 | `CJOC_URL`                       | ${BASE_URL}/cjoc             | 
 | `CONTROLLER_NAME`                | ciController001              | 
 | `CONTROLLER_IMAGE_VERSION`       | 2.401.2.5                    | 
-| `BUNDLE_NAME`                    | mycontrollerbundlename       | 
 | `TOKEN`                          | user:123XYZ                  | 
 | `CREATE_MM_TEMPLATE_YAML`        | templates/create-mm.yaml     | 
 | `CREATE_MM_FOLDER_TEMPLATE_YAML` | templates/create-folder.yaml | 
