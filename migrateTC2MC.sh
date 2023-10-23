@@ -11,7 +11,7 @@ rm -rf $GEN_DIR
 mkdir -p $GEN_DIR
 
 function checkControllerOnline () {
-  # We have to wait until ingress is created and we call and Jenkins HealthCheck with state 200
+  # We have to wait until ingress is created and we can call the Jenkins HealthCheck with state 200
   while [ ! -n "$(curl  -IL  ${CONTROLLER_URL}/login | grep -o  'HTTP/2 200')" ]
   do
     echo "wait 30 sec for State HTTP 200:  ${CONTROLLER_URL}/login"
@@ -19,7 +19,7 @@ function checkControllerOnline () {
   done
 }
 
-# We render the CasC template instanmces for cjoc-cintroller-items.yaml  and the casc-folder (target folder)
+# We render the CasC template instances for cjoc-controller-items.yaml and the casc-folder (target folder)
 # All variables from the envvars.sh will be substituted
 envsubst < ${CREATE_MM_TEMPLATE_YAML} > $GEN_DIR/${CONTROLLER_NAME}.yaml
 envsubst < ${CREATE_MM_FOLDER_TEMPLATE_YAML} > $GEN_DIR/${CONTROLLER_NAME}-folder.yaml
