@@ -53,16 +53,16 @@ curl -v  -XPOST \
 # curl  -XPOST -u ${TOKEN} ${CONTROLLER_URL}/casc-items/create-items -d @${CONTROLLER_NAME}-folder.yaml
 # sleep 180
 
-# COPY CREDENTIAL IMPORT SCRIPT TO TARGET POD
-# kubectl cp credentials-migration/export-credentials-system-level.groovy teams-${CONTROLLER_NAME}-0:/var/jenkins_home/ 
-# kubectl cp credentials-migration/export-credentials-folder-level.groovy teams-${CONTROLLER_NAME}-0:/var/jenkins_home/ 
+# COPY CREDENTIAL EXPORT SCRIPT TO TC POD
+kubectl cp credentials-migration/export-credentials-system-level.groovy teams-${CONTROLLER_NAME}-0:/var/jenkins_home/
+kubectl cp credentials-migration/export-credentials-folder-level.groovy teams-${CONTROLLER_NAME}-0:/var/jenkins_home/
 
-# COPY CREDENTIAL EXPORT SCRIPT TO TARGET POD
-# kubectl cp credentials-migration/update-credentials-system-level.groovy ${CONTROLLER_NAME}-0:/var/jenkins_home/ 
-# kubectl cp credentials-migration/update-credentials-folder-level.groovy ${CONTROLLER_NAME}-0:/var/jenkins_home/ 
+# COPY CREDENTIAL IMPORT SCRIPT TO MC POD
+kubectl cp credentials-migration/update-credentials-system-level.groovy ${CONTROLLER_NAME}-0:/var/jenkins_home/
+kubectl cp credentials-migration/update-credentials-folder-level.groovy ${CONTROLLER_NAME}-0:/var/jenkins_home/
 
 # COPY JOBS
-# We copy the jobs folder recurisive from TC to the new folder on MC
+# We copy the jobs folder recursive from TC to the new folder on MC
 echo "------------------  COPYING JOBS FOLDER ------------------"
 mkdir -p $GEN_DIR/teams-${CONTROLLER_NAME}-jobs
 #kubectl exec -it teams-${CONTROLLER_NAME}-0 --  tar -cvzf /tmp/${CONTROLLER_NAME}-job.tar.gz -C /var/jenkins_home/jobs/
