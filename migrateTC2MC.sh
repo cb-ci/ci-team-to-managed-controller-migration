@@ -24,7 +24,7 @@ function checkControllerOnline () {
 envsubst < ${CREATE_MM_TEMPLATE_YAML} > $GEN_DIR/${CONTROLLER_NAME}.yaml
 envsubst < ${CREATE_MM_FOLDER_TEMPLATE_YAML} > $GEN_DIR/${CONTROLLER_NAME}-folder.yaml
 
-# We switch th the cloudbees namespace, where the TC runs
+# We switch to the cloudbees namespace, where the TC runs
 kubens $NAMESPACE
 
 #CREATE MC CONTROLLER
@@ -41,7 +41,7 @@ echo "------------------  WAITING FOR CONTROLLER TO COME UP ------------------"
 checkControllerOnline
 
 # Now we apply the target Folder to the Managed Controller.
-# This is the root Folder where we want to migrate our credentials and jobs to
+# This is the root folder where we want to migrate our credentials and jobs to
 echo "------------------  CREATING INITIAL TEAM FOLDER ------------------"
 curl -v  -XPOST \
     --user $TOKEN \
