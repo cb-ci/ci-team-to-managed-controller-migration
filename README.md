@@ -36,6 +36,7 @@ if you see the [migrateTC2MC.sh script](./migrateTC2MC.sh), it contains the step
 
 | VARIABLE                         | VALUE/Example                | 
 |----------------------------------|------------------------------| 
+| `NAMESPACE_CB_CORE`              | cloudbees-core               | 
 | `BASE_URL`                       | https://ci.example.com       | 
 | `CJOC_URL`                       | ${BASE_URL}/cjoc             | 
 | `CONTROLLER_NAME`                | ciController001              | 
