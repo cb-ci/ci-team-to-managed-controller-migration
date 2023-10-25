@@ -22,7 +22,7 @@ if you see the [migrateTC2MC.sh script](./migrateTC2MC.sh), it contains the step
 
 # How to start
 
-* Create a TC you want to migrate  to MC
+* Create a TC that you want to migrate to MC
   * Optional: For testing purposes, create some jobs on the TC (or use existing ones)
 * copy `envvars.sh.template`  to `envvars.sh`
   * ``` cp envvars.sh.template envvars.sh```
@@ -47,7 +47,10 @@ if you see the [migrateTC2MC.sh script](./migrateTC2MC.sh), it contains the step
 | `CREATE_MM_FOLDER_TEMPLATE_YAML` | templates/create-folder.yaml | 
 
 
-# JSON API 
+
+# Extra stuff,not related to the migration script
+
+## JSON API 
 * https://www.cloudbees.com/blog/taming-jenkins-json-api-depth-and-tree
 * https://gist.github.com/justlaputa/5634984
 * https://garygeorge84.medium.com/jenkins-api-with-node-4d3826322367
