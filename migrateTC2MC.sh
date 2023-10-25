@@ -25,7 +25,8 @@ envsubst < ${CREATE_MM_TEMPLATE_YAML} > $GEN_DIR/${CONTROLLER_NAME}.yaml
 envsubst < ${CREATE_MM_FOLDER_TEMPLATE_YAML} > $GEN_DIR/${CONTROLLER_NAME}-folder.yaml
 
 # We switch to the cloudbees namespace, where the TC runs
-kubens $NAMESPACE
+#kubens $NAMESPACE
+kubectl config set-context $(kubectl config current-context) --namespace=$NAMESPACE_CB_CORE
 
 #CREATE MC CONTROLLER
 # We apply the cjoc-controller-items.yaml to cjoc. Cjoc will create a new MC for us using our $GEN_DIR/${CONTROLLER_NAME}.yaml
