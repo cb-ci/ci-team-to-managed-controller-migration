@@ -1,4 +1,5 @@
 #! /bin/bash
+export NAMESPACE_CB_CORE=cloudbees-core
 export BASE_URL="https://BASE_URL"
 export CJOC_URL=${BASE_URL}"/cjoc"
 export CONTROLLER_NAME="wpg"
