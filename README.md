@@ -15,10 +15,15 @@ To automate the migration from TC to MC, the following phases are required (take
 
 * CREATE MC
 * ON MC: create target folder (where to migrate the Teams/teams root folder to )
-* COPY JOBS FROM TC TO MC
+* COPY JOBS FROM TC TO MC 
 * MIGRATE CREDENTIALS
 
 if you see the [migrateTC2MC.sh script](./migrateTC2MC.sh), it contains the steps for the phases above.
+
+* if you need to improve the copy performance you can use the [copy-jobs.sh](./copy-jobs.sh)
+* The copy script requires RWX storage class on the Controller PVCs. 
+* If you have an RWO storage class you need to scale down the replica sets of the controllers before you execute the `copy-jobs.sh` script
+
 
 # How to start
 
