@@ -20,11 +20,6 @@ To automate the migration from TC to MC, the following phases are required (take
 
 if you see the [migrateTC2MC.sh script](./migrateTC2MC.sh), it contains the steps for the phases above.
 
-* if you need to improve the copy performance you can use the [copy-jobs.sh](./copy-jobs.sh)
-* The copy script requires RWX storage class on the Controller PVCs. 
-* If you have an RWO storage class you need to scale down the replica sets of the controllers before you execute the `copy-jobs.sh` script
-
-
 # How to start
 
 * Create a TC that you want to migrate to MC
@@ -35,6 +30,9 @@ if you see the [migrateTC2MC.sh script](./migrateTC2MC.sh), it contains the step
 * Execute the migration script
   * ```./migrateTC2MC.sh ```
 * See the `gen` dir and logs
+* Optional: If you need to improve the copy performance you can use the [copy-jobs.sh](./copy-jobs.sh) to copy the jobs between team and managed Controllers
+ * The copy script requires RWX storage class on the Controller PVCs.
+ * If you have an RWO storage class you need to scale down the replica sets of the controllers before you execute the `copy-jobs.sh` script
 
 
 ## Envvars
