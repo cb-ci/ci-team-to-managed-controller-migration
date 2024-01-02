@@ -1,7 +1,7 @@
 #! /bin/bash
 NAMESPACE=cloudbees-core
 CLAIM_NAME_SOURCE=${1:-jenkins-home-source-0}
-CLAIM_NAME_DESTINATION=${1:-jenkins-home-destination-0}
+CLAIM_NAME_DESTINATION=${2:-jenkins-home-destination-0}
 
 cat <<EOF | kubectl --namespace=$NAMESPACE apply -f -
 apiVersion: v1
