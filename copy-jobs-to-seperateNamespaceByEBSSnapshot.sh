@@ -9,12 +9,12 @@ NAMESPACE_SOURCE=${3:-"cloudbees-core"}
 #Name of the destination namespace where your $DOMAIN_DESTINATION Controller is located
 NAMESPACE_DESTINATION=${4:-"cloudbees-controllers"}
 
-export GENDIR=generated
 
-mkdir -p $GENDIR
 
 #Adjust your AWS region
 export AWS_DEFAULT_REGION=us-east-1
+export GENDIR=generated
+mkdir -p $GENDIR
 
 #TODO:Adjust your tags here
 TAGS="Tags=[{Key=cb-environment,Value=customer-dev-XY},{Key=cb-user,Value=XY},{Key=cb-owner,Value=XY}]"
@@ -130,7 +130,8 @@ kubectl exec -ti rescue-pod -- rsync -avz --exclude="*/builds/" /tmp/jenkins_hom
 
 
 #Clean resources
-##TODO: use trap command and sigterm
+##TODO: use trap command and sigterm, see https://opensource.com/article/20/6/bash-trap
+#trap  "aws ec2 delete-snapshot --snapshot-id $SNAPSHOTID"  SIGINT SIGTERM ERR EXIT
 echo "delete snapshot $SNAPSHOTID, we don't need it anymore"
 aws ec2 delete-snapshot --snapshot-id $SNAPSHOTID
 echo "delete rescue-pod , we don't need it anymore"
