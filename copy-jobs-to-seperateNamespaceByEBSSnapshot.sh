@@ -140,6 +140,7 @@ echo "delete rescue-pvc-${DOMAIN_SOURCE} , we don't need it anymore"
 kubectl delete pvc rescue-pvc-${DOMAIN_SOURCE}
 sleep 10 # this can be improved, we need to wait until the pvc is deleted before deleting the volume_id below
 echo "delete snapshot volume   ${VOLUME_ID} , we don't need it anymore"
+aws ec2 detach-volume --volume-id ${VOLUME_ID} --force
 aws ec2 delete-volume --volume-id ${VOLUME_ID}
 
 #reload new Jobs from disk
