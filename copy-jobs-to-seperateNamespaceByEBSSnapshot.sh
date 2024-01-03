@@ -50,7 +50,7 @@ export VOLUME_ID=$(cat $GENDIR/ebs-snapshot_volume.json |jq -r  '.VolumeId')
 echo "volume $VOLUME_ID created"
 
 
-#create PV,PVC fro the new volume (restored from EBS Snapshot)
+#create PV,PVC fro the new volume (that was restored from EBS Snapshot previously)
 cat <<EOF | kubectl --namespace=$NAMESPACE_DESTINATION apply -f -
 ---
 apiVersion: "v1"
@@ -108,6 +108,7 @@ spec:
   containers:
   - name: rescue-pvc
     #image: busybox
+    #We need rsync!!
     image: instrumentisto/rsync-ssh
     command: [ "sh", "-c", "sleep 10000" ]
     volumeMounts:
@@ -121,8 +122,11 @@ EOF
 
 #Wait until pod is up
 kubectl wait pod/rescue-pod  --for condition=ready
-#This command will sync all jobs and jobs folders excluding the build
+#This command will sync all jobs and folders excluding the build
 kubectl exec -ti rescue-pod -- rsync -avz --exclude="*/builds/" /tmp/jenkins_home_source/jobs/ /tmp/jenkins_home_destination/jobs
+
+#This command will sync all jobs and folders including history
+#kubectl exec -ti rescue-pod -- rsync -avz  /tmp/jenkins_home_source/jobs/ /tmp/jenkins_home_destination/jobs
 
 #Clean resources
 ##TODO: use trap command and sigterm
