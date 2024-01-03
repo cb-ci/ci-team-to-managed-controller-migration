@@ -1,12 +1,19 @@
 #! /bin/bash
 set -x
+#Name of the original Team or Managed Controller you want to copy jobs from
 DOMAIN_SOURCE=${1:-"ebs"}
+#Name of the destination Team or Managed Controller you want to copy jobs to
 DOMAIN_DESTINATION=${2:-"sepns"}
+#Name of the original namespace where your $DOMAIN_SOURCE Controller is located
 NAMESPACE_SOURCE=${3:-"cloudbees-core"}
+#Name of the destination namespace where your $DOMAIN_DESTINATION Controller is located
 NAMESPACE_DESTINATION=${4:-"cloudbees-controllers"}
+
 export GENDIR=generated
 
 mkdir -p $GENDIR
+
+#Adjust your AWS region
 export AWS_DEFAULT_REGION=us-east-1
 
 #TODO:Adjust your tags here
@@ -14,6 +21,7 @@ TAGS="Tags=[{Key=cb-environment,Value=customer-dev-XY},{Key=cb-user,Value=XY},{K
 
 #The JENKINS_HOME PV name where we want to take a snapshot from
 VOLUMENAME=$(kubectl get "pvc/jenkins-home-${DOMAIN_SOURCE}-0" -n ${NAMESPACE_SOURCE} -o go-template={{.spec.volumeName}})
+
 #The volume id of the PV
 VOLUMEID=$(kubectl get pv $VOLUMENAME -n ${NAMESPACE_SOURCE} -o go-template={{.spec.awsElasticBlockStore.volumeID}})
 
