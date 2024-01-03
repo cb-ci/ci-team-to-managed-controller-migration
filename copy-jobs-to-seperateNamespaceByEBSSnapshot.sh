@@ -9,7 +9,8 @@ export GENDIR=generated
 mkdir -p $GENDIR
 export AWS_DEFAULT_REGION=us-east-1
 
-TAGS="Tags=[{Key=cb-environment,Value=customer-dev-worldpay},{Key=cb-user,Value=acaternberg},{Key=cb-owner,Value=professional-services}]"
+#TODO:Adjust your tags here
+TAGS="Tags=[{Key=cb-environment,Value=customer-dev-XY},{Key=cb-user,Value=XY},{Key=cb-owner,Value=XY}]"
 
 #The JENKINS_HOME PV name where we want to take a snapshot from
 VOLUMENAME=$(kubectl get "pvc/jenkins-home-${DOMAIN_SOURCE}-0" -n ${NAMESPACE_SOURCE} -o go-template={{.spec.volumeName}})
