@@ -129,15 +129,17 @@ kubectl exec -ti rescue-pod -- rsync -avz --exclude="*/builds/" /tmp/jenkins_hom
 #kubectl exec -ti rescue-pod -- rsync -avz  /tmp/jenkins_home_source/jobs/ /tmp/jenkins_home_destination/jobs
 
 
-#TODO: restart Controller ${DOMAIN_DESTINATION} or reload configuration from disk
-
 #Clean resources
 ##TODO: use trap command and sigterm
 echo "delete snapshot $SNAPSHOTID, we don't need it anymore"
 aws ec2 delete-snapshot --snapshot-id $SNAPSHOTID
 echo "delete rescue-pod , we don't need it anymore"
 kubectl delete pod rescue-pod
-echo "delete  rescue-pvc-${DOMAIN_SOURCE} , we don't need it anymore"
+echo "delete rescue-pvc-${DOMAIN_SOURCE} , we don't need it anymore"
 kubectl delete pvc rescue-pvc-${DOMAIN_SOURCE}
+sleep 10 # this can be improved, we need to wait until the pvc is deleted before deleting the volume_id below
 echo "delete snapshot volume   ${VOLUME_ID} , we don't need it anymore"
 aws ec2 delete-volume --volume-id ${VOLUME_ID}
+
+#reload new Jobs from disk
+#TODO: restart Controller ${DOMAIN_DESTINATION} or reload configuration from disk
