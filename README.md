@@ -53,6 +53,10 @@ if you see the [migrateTC2MC.sh script](./migrateTC2MC.sh), it contains the step
 
 # Extra stuff,not related to the migration script
 
+## Migrate PVC to another namespace
+
+see example https://webera.blog/recreate-an-existing-pvc-in-a-new-namespace-but-reusing-the-same-pv-without-data-loss-2c7326c0035a 
+
 ## JSON API 
 * https://www.cloudbees.com/blog/taming-jenkins-json-api-depth-and-tree
 * https://gist.github.com/justlaputa/5634984
