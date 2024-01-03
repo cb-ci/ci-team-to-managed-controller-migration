@@ -128,6 +128,9 @@ kubectl exec -ti rescue-pod -- rsync -avz --exclude="*/builds/" /tmp/jenkins_hom
 #This command will sync all jobs and folders including history
 #kubectl exec -ti rescue-pod -- rsync -avz  /tmp/jenkins_home_source/jobs/ /tmp/jenkins_home_destination/jobs
 
+
+#TODO: restart Controller ${DOMAIN_DESTINATION} or reload configuration from disk
+
 #Clean resources
 ##TODO: use trap command and sigterm
 echo "delete snapshot $SNAPSHOTID, we don't need it anymore"
