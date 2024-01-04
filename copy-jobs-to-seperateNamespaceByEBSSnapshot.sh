@@ -20,15 +20,15 @@ mkdir -p $GENDIR
 TAGS="Tags=[{Key=cb-environment,Value=customer-dev-XY},{Key=cb-user,Value=XY},{Key=cb-owner,Value=XY}]"
 
 #Get the SOURCE JENKINS_HOME PV name where we want to take a snapshot from
-VOLUME_NAME_SOOURCE=$(kubectl get "pvc/jenkins-home-${DOMAIN_SOURCE}-0" -n ${NAMESPACE_SOURCE} -o go-template={{.spec.volumeName}})
+VOLUME_NAME_SOURCE=$(kubectl get "pvc/jenkins-home-${DOMAIN_SOURCE}-0" -n ${NAMESPACE_SOURCE} -o go-template={{.spec.volumeName}})
 
 #The volume id of the PV
-VOLUME_ID_SOURCE=$(kubectl get pv $VOLUME_NAME_SOOURCE -n ${NAMESPACE_SOURCE} -o go-template={{.spec.awsElasticBlockStore.volumeID}})
+VOLUME_ID_SOURCE=$(kubectl get pv $VOLUME_NAME_SOURCE -n ${NAMESPACE_SOURCE} -o go-template={{.spec.awsElasticBlockStore.volumeID}})
 
-echo "take snapshot for $DOMAIN_SOURCE, $VOLUME_NAME_SOOURCE, $VOLUME_ID_SOURCE"
+echo "take snapshot for $DOMAIN_SOURCE, $VOLUME_NAME_SOURCE, $VOLUME_ID_SOURCE"
 SNAPSHOT=$(aws ec2 create-snapshot \
 --volume-id "$VOLUME_ID_SOURCE" \
---description "$DOMAIN_SOURCE,$VOLUME_NAME_SOOURCE,$VOLUME_ID_SOURCE" \
+--description "$DOMAIN_SOURCE,$VOLUME_NAME_SOURCE,$VOLUME_ID_SOURCE" \
 --output json \
 --tag-specifications "ResourceType=snapshot,$TAGS")
 echo $SNAPSHOT |jq  >  $GENDIR/ebs-snapshot.json
@@ -43,7 +43,7 @@ export SNAPSHOT_VOLUME=$(aws ec2 create-volume \
 --volume-type gp2 \
 --snapshot-id $SNAPSHOT_ID \
 --tag-specifications "ResourceType=volume,$TAGS" \
---availability-zone us-east-1a \
+--availability-zone $AWS_DEFAULT_REGION \
 --output json)
 echo $SNAPSHOT_VOLUME |jq  >  $GENDIR/ebs-snapshot_volume.json
 export VOLUME_ID_SNAPSHOT=$(cat $GENDIR/ebs-snapshot_volume.json |jq -r  '.VolumeId')
