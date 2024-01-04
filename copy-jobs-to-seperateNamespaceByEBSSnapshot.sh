@@ -19,35 +19,35 @@ mkdir -p $GENDIR
 #TODO:Adjust your tags here
 TAGS="Tags=[{Key=cb-environment,Value=customer-dev-XY},{Key=cb-user,Value=XY},{Key=cb-owner,Value=XY}]"
 
-#The JENKINS_HOME PV name where we want to take a snapshot from
-VOLUMENAME=$(kubectl get "pvc/jenkins-home-${DOMAIN_SOURCE}-0" -n ${NAMESPACE_SOURCE} -o go-template={{.spec.volumeName}})
+#Get the SOURCE JENKINS_HOME PV name where we want to take a snapshot from
+VOLUME_NAME_SOOURCE=$(kubectl get "pvc/jenkins-home-${DOMAIN_SOURCE}-0" -n ${NAMESPACE_SOURCE} -o go-template={{.spec.volumeName}})
 
 #The volume id of the PV
-VOLUMEID=$(kubectl get pv $VOLUMENAME -n ${NAMESPACE_SOURCE} -o go-template={{.spec.awsElasticBlockStore.volumeID}})
+VOLUME_ID_SOURCE=$(kubectl get pv $VOLUME_NAME_SOOURCE -n ${NAMESPACE_SOURCE} -o go-template={{.spec.awsElasticBlockStore.volumeID}})
 
-echo "take snapshot for $DOMAIN_SOURCE, $VOLUMENAME, $VOLUMEID"
+echo "take snapshot for $DOMAIN_SOURCE, $VOLUME_NAME_SOOURCE, $VOLUME_ID_SOURCE"
 SNAPSHOT=$(aws ec2 create-snapshot \
---volume-id "$VOLUMEID" \
---description "$DOMAIN_SOURCE,$VOLUMENAME,$VOLUMEID" \
+--volume-id "$VOLUME_ID_SOURCE" \
+--description "$DOMAIN_SOURCE,$VOLUME_NAME_SOOURCE,$VOLUME_ID_SOURCE" \
 --output json \
 --tag-specifications "ResourceType=snapshot,$TAGS")
 echo $SNAPSHOT |jq  >  $GENDIR/ebs-snapshot.json
 
-SNAPSHOTID=$(cat $GENDIR/ebs-snapshot.json |jq -r '.SnapshotId')
+export SNAPSHOT_ID=$(cat $GENDIR/ebs-snapshot.json |jq -r '.SnapshotId')
 aws ec2 wait snapshot-completed \
-    --snapshot-ids $SNAPSHOTID
-echo "snapshot $SNAPSHOTID created"
+    --snapshot-ids $SNAPSHOT_ID
+echo "snapshot $SNAPSHOT_ID created"
 
-echo "create volume for $SNAPSHOTID"
-SNAPSHOT_VOLUME=$(aws ec2 create-volume \
+echo "create volume for $SNAPSHOT_ID"
+export SNAPSHOT_VOLUME=$(aws ec2 create-volume \
 --volume-type gp2 \
---snapshot-id $SNAPSHOTID \
+--snapshot-id $SNAPSHOT_ID \
 --tag-specifications "ResourceType=volume,$TAGS" \
 --availability-zone us-east-1a \
 --output json)
 echo $SNAPSHOT_VOLUME |jq  >  $GENDIR/ebs-snapshot_volume.json
-export VOLUME_ID=$(cat $GENDIR/ebs-snapshot_volume.json |jq -r  '.VolumeId')
-echo "volume $VOLUME_ID created"
+export VOLUME_ID_SNAPSHOT=$(cat $GENDIR/ebs-snapshot_volume.json |jq -r  '.VolumeId')
+echo "volume $VOLUME_ID_SNAPSHOT created"
 
 
 #create PV,PVC fro the new volume (that was restored from EBS Snapshot previously)
@@ -66,9 +66,9 @@ spec:
   persistentVolumeReclaimPolicy: Delete  # Adjust reclaim policy based on your requirement
   storageClassName: gp2
   awsElasticBlockStore:
-    volumeID: "${VOLUME_ID}"  # Replace with your AWS EBS volume ID
+    volumeID: "${VOLUME_ID_SNAPSHOT}"  # Replace with your AWS EBS volume ID
     fsType: ext4  # Define the file system type
-    readOnly: false  # Set to true if the volume should be mounted as read-only
+    readOnly: true  # Set to true if the volume should be mounted as read-only
 ---
 apiVersion: "v1"
 kind: PersistentVolumeClaim
@@ -128,20 +128,22 @@ kubectl exec -ti rescue-pod -- rsync -avz --exclude="*/builds/" /tmp/jenkins_hom
 #This command will sync all jobs and folders including history
 #kubectl exec -ti rescue-pod -- rsync -avz  /tmp/jenkins_home_source/jobs/ /tmp/jenkins_home_destination/jobs
 
-
 #Clean resources
-##TODO: use trap command and sigterm, see https://opensource.com/article/20/6/bash-trap
-#trap  "aws ec2 delete-snapshot --snapshot-id $SNAPSHOTID"  SIGINT SIGTERM ERR EXIT
-echo "delete snapshot $SNAPSHOTID, we don't need it anymore"
-aws ec2 delete-snapshot --snapshot-id $SNAPSHOTID
-echo "delete rescue-pod , we don't need it anymore"
-kubectl delete pod rescue-pod
-echo "delete rescue-pvc-${DOMAIN_SOURCE} , we don't need it anymore"
-kubectl delete pvc rescue-pvc-${DOMAIN_SOURCE}
-sleep 10 # this can be improved, we need to wait until the pvc is deleted before deleting the volume_id below
-echo "delete snapshot volume   ${VOLUME_ID} , we don't need it anymore"
-aws ec2 detach-volume --volume-id ${VOLUME_ID} --force
-aws ec2 delete-volume --volume-id ${VOLUME_ID}
+function cleanUpResources {
+  echo "delete snapshot $SNAPSHOT_ID, we don't need it anymore"
+  aws ec2 delete-snapshot --snapshot-id $SNAPSHOT_ID
+  echo "delete rescue-pod , we don't need it anymore"
+  kubectl delete pod rescue-pod
+  echo "delete rescue-pvc-${DOMAIN_SOURCE} , we don't need it anymore"
+  kubectl delete pvc rescue-pvc-${DOMAIN_SOURCE}
+  sleep 10 # this can be improved, we need to wait until the pvc is deleted before deleting the volume_id below
+  echo "delete snapshot volume   ${VOLUME_ID_SNAPSHOT} , we don't need it anymore"
+  aws ec2 detach-volume --volume-id ${VOLUME_ID_SNAPSHOT} --force
+  aws ec2 delete-volume --volume-id ${VOLUME_ID_SNAPSHOT}
+}
+#https://www.putorius.net/using-trap-to-exit-bash-scripts-cleanly.html#google_vignette
+trap cleanUpResources  SIGINT SIGTERM ERR EXIT
+
 
 #reload new Jobs from disk
 #TODO: restart Controller ${DOMAIN_DESTINATION} or reload configuration from disk
