@@ -14,7 +14,8 @@ function checkControllerOnline () {
   # We have to wait until ingress is created and we can call the Jenkins HealthCheck with state 200
   while [ ! -n "$(curl  -IL  ${CONTROLLER_URL}/login | grep -o  'HTTP/2 200')" ]
   do
-    echo "wait 30 sec for State HTTP 200:  ${CONTROLLER_URL}/login"
+    #echo "wait 30 sec for State HTTP 200:  ${CONTROLLER_URL}/login"
+    echo "wait 30 sec for State HTTP 200:  ${CONTROLLER_URL}/whoAmI/api/json?tree=authenticated"
     sleep 30
   done
 }
