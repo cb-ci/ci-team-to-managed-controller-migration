@@ -123,7 +123,7 @@ EOF
 #Wait until pod is up
 kubectl wait pod/rescue-pod  --for condition=ready
 #This command will sync all jobs and folders excluding the build
-kubectl exec -ti rescue-pod -- rsync -avz --exclude="*/builds/" /tmp/jenkins_home_source/jobs/ /tmp/jenkins_home_destination/jobs
+kubectl exec -ti rescue-pod -- rsync -az --exclude="*/builds/" /tmp/jenkins_home_source/jobs/ /tmp/jenkins_home_destination/jobs
 
 #This command will sync all jobs and folders including history
 #kubectl exec -ti rescue-pod -- rsync -avz  /tmp/jenkins_home_source/jobs/ /tmp/jenkins_home_destination/jobs

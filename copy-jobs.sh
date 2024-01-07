@@ -39,4 +39,4 @@ EOF
 #kubectl exec -ti rescue-pvc -- ls -l /tmp
 
 #This command will sync all jobs and jobs folders excluding the build
-kubectl exec -ti rescue-pvc -- rsync -avz --exclude="*/builds/" /tmp/jenkins_home_source/jobs/ /tmp/jenkins_home_destination/jobs
+kubectl exec -ti rescue-pvc -- rsync -az --exclude="*/builds/" /tmp/jenkins_home_source/jobs/ /tmp/jenkins_home_destination/jobs

@@ -1,6 +1,9 @@
 #! /bin/bash
 #enable debugging output
 set -x
+
+source ./envvars.sh
+
 #Name of the original Team or Managed Controller you want to copy jobs from
 DOMAIN_SOURCE=${1:-"myteam"}
 
@@ -40,7 +43,7 @@ function checkControllerOnline () {
 # We apply the cjoc-controller-items.yaml to cjoc. Cjoc will create a new Managed Controller for us using our $GENDIR/${CONTROLLER_NAME}.yaml
 echo "------------------  CREATING MANAGED CONTROLLER ------------------"
 export CONTROLLER_NAME="${DOMAIN_DESTINATION}"
-envsubst < templates/create-mm.yaml > $GENDIR/${DOMAIN_DESTINATION}.yaml
+envsubst < templates/create-mc.yaml > $GENDIR/${DOMAIN_DESTINATION}.yaml
 curl -XPOST \
    --user $TOKEN \
    "${CJOC_URL}/casc-items/create-items" \
