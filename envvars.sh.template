@@ -1,11 +1,23 @@
 #! /bin/bash
-export NAMESPACE_CB_CORE=cloudbees-core
-export BASE_URL="https://BASE_URL"
+#! /bin/bash
+
+#########################################################
+#Common settings
+export AWS_DEFAULT_REGION=us-east-1
+export BASE_URL="https://XXXXX"
 export CJOC_URL=${BASE_URL}"/cjoc"
+export TOKEN="USER:JENKINSTOKEN"
+
+########################################################
+##casc
+export CONTROLLER_IMAGE_VERSION="2.426.2.2"
+export BUNDLE_NAME="controller0"
+
+########################################################
+#Settings just for the migrateTC2MC.sh script
+export CREATE_MM_TEMPLATE_YAML=templates/create-mc.yaml
+export CREATE_MM_FOLDER_TEMPLATE_YAML=templates/create-folder.yaml
+export NAMESPACE_CB_CORE=cloudbees-core
 export CONTROLLER_NAME="wpg"
 export CONTROLLER_URL=${BASE_URL}"/"${CONTROLLER_NAME}
-export CONTROLLER_IMAGE_VERSION="2.XXXX"
-export BUNDLE_NAME="CONTROLLER_BUNDLE_NAME"
-export TOKEN="USER:TOKEN"
-export CREATE_MM_TEMPLATE_YAML=templates/create-mm.yaml
-export CREATE_MM_FOLDER_TEMPLATE_YAML=templates/create-folder.yaml
+

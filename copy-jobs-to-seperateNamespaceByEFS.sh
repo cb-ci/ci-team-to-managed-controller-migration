@@ -6,7 +6,6 @@ source ./envvars.sh
 
 #Name of the original Team or Managed Controller you want to copy jobs from
 DOMAIN_SOURCE=${1:-"myteam"}
-
 #Teamcontrollers have always the prefix "teams-". If the source controller is a managed controller, set the DOMAIN_SOURCE_TEAM_PREFIX to empty string""
 #Team Controller prefix
 DOMAIN_SOURCE_TEAM_PREFIX="teams-"
@@ -18,11 +17,8 @@ DOMAIN_DESTINATION=${2:-"sepns-efs"}
 
 #Name of the original namespace where your $DOMAIN_SOURCE Controller is located
 NAMESPACE_SOURCE=${3:-"cloudbees-core"}
-
 #Name of the destination namespace where your $DOMAIN_DESTINATION Controller is located
 NAMESPACE_DESTINATION=${4:-"cloudbees-controllers"}
-
-
 
 #Temporary dir for generated files and log files
 export GENDIR=generated
@@ -69,7 +65,7 @@ curl -v  -XPOST \
 # We also get some attributes from from the original pv and pvc that we need to reclaim the EFS volume
 VOLUME_NAME_SOURCE=$(kubectl get "pvc/jenkins-home-${DOMAIN_SOURCE_TEAM_PREFIX}${DOMAIN_SOURCE}-0" -n ${NAMESPACE_SOURCE} -o go-template={{.spec.volumeName}})
 VOLUME_HANDLE_SOURCE=$(kubectl get pv $VOLUME_NAME_SOURCE -n ${NAMESPACE_SOURCE} -o go-template={{.spec.csi.volumeHandle}})
-VOLUME_ATTRIBUTE_SOURCE=$(kubectl get pv $VOLUME_NAME_SOURCE -o   go-template={{.spec.csi.volumeAttributes}} | sed  's#map\[storage.kubernetes.io/csiProvisionerIdentity:# #'  | sed 's#]##')
+VOLUME_ATTRIBUTE_SOURCE=$(kubectl get pv $VOLUME_NAME_SOURCE -o   go-template={{.spec.csi.volumeAttributes}} | sed  's#map\[storage.kubernetes.io/csiProvisionerIdentity:##'  | sed 's#]##')
 VOLUME_CAPACITY_STORAGE_SOURCE=$(kubectl get pv $VOLUME_NAME_SOURCE -o   go-template={{.spec.capacity.storage}})
 VOLUME_STORAGE_CLASSNAME_SOURCE=$(kubectl get pv $VOLUME_NAME_SOURCE -o   go-template={{.spec.storageClassName}})
 
