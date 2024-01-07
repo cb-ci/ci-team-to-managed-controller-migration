@@ -19,12 +19,7 @@ NAMESPACE_SOURCE=${3:-"cloudbees-core"}
 #Name of the destination namespace where your $DOMAIN_DESTINATION Controller is located
 NAMESPACE_DESTINATION=${4:-"cloudbees-controllers"}
 
-#Adjust your AWS region
-export AWS_DEFAULT_REGION=us-east-1
 
-export BASE_URL="https://ci.acaternberg.pscbdemos.com"
-export CJOC_URL=${BASE_URL}"/cjoc"
-export TOKEN="admin123:11346c2a9e3d0b84c7f094bdcb2cdbf010"
 
 #Temporary dir for generated files and log files
 export GENDIR=generated
@@ -44,16 +39,16 @@ function checkControllerOnline () {
 #CREATE MC CONTROLLER
 # We apply the cjoc-controller-items.yaml to cjoc. Cjoc will create a new Managed Controller for us using our $GENDIR/${CONTROLLER_NAME}.yaml
 echo "------------------  CREATING MANAGED CONTROLLER ------------------"
-#export CONTROLLER_NAME="${DOMAIN_DESTINATION}"
-#envsubst < templates/create-mm.yaml > $GENDIR/${DOMAIN_DESTINATION}.yaml
-#curl -XPOST \
-#   --user $TOKEN \
-#   "${CJOC_URL}/casc-items/create-items" \
-#    -H "Content-Type:text/yaml" \
-#   --data-binary @$GENDIR/${DOMAIN_DESTINATION}.yaml
+export CONTROLLER_NAME="${DOMAIN_DESTINATION}"
+envsubst < templates/create-mm.yaml > $GENDIR/${DOMAIN_DESTINATION}.yaml
+curl -XPOST \
+   --user $TOKEN \
+   "${CJOC_URL}/casc-items/create-items" \
+    -H "Content-Type:text/yaml" \
+   --data-binary @$GENDIR/${DOMAIN_DESTINATION}.yaml
 # We wait until our new Managed Controller pod is up
-#echo "------------------  WAITING FOR CONTROLLER TO COME UP ------------------"
-#checkControllerOnline $BASE_URL/$DOMAIN_DESTINATION
+echo "------------------  WAITING FOR CONTROLLER TO COME UP ------------------"
+checkControllerOnline $BASE_URL/$DOMAIN_DESTINATION
 
 
 # Now we apply the target Folder to the Managed Controller.
