@@ -7,6 +7,7 @@ export AWS_DEFAULT_REGION=us-east-1
 export BASE_URL="https://XXXXX"
 export CJOC_URL=${BASE_URL}"/cjoc"
 export TOKEN="USER:JENKINSTOKEN"
+export GENDIR=generated
 
 ########################################################
 ##casc
@@ -21,3 +22,7 @@ export NAMESPACE_CB_CORE=cloudbees-core
 export CONTROLLER_NAME="wpg"
 export CONTROLLER_URL=${BASE_URL}"/"${CONTROLLER_NAME}
 
+
+
+rm -rf $GENDIR
+mkdir -p $GENDIR

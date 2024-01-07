@@ -1,5 +1,10 @@
 #! /bin/bash
 set -x
+
+source ./envvars.sh
+
+mkdir -p $GENDIR
+
 #Name of the original Team or Managed Controller you want to copy jobs from
 DOMAIN_SOURCE=${1:-"ebs"}
 #Name of the destination Team or Managed Controller you want to copy jobs to
@@ -10,14 +15,8 @@ NAMESPACE_SOURCE=${3:-"cloudbees-core"}
 NAMESPACE_DESTINATION=${4:-"cloudbees-controllers"}
 
 
-
-#Adjust your AWS region
-export AWS_DEFAULT_REGION=us-east-1
-export GENDIR=generated
-mkdir -p $GENDIR
-
 #TODO:Adjust your tags here
-TAGS="Tags=[{Key=cb-environment,Value=customer-dev-XY},{Key=cb-user,Value=XY},{Key=cb-owner,Value=XY}]"
+AWS_TAGS="Tags=[{Key=cb-environment,Value=customer-dev-XY},{Key=cb-user,Value=XY},{Key=cb-owner,Value=XY}]"
 
 #Get the SOURCE JENKINS_HOME PV name where we want to take a snapshot from
 VOLUME_NAME_SOURCE=$(kubectl get "pvc/jenkins-home-${DOMAIN_SOURCE}-0" -n ${NAMESPACE_SOURCE} -o go-template={{.spec.volumeName}})
@@ -30,7 +29,7 @@ SNAPSHOT=$(aws ec2 create-snapshot \
 --volume-id "$VOLUME_ID_SOURCE" \
 --description "$DOMAIN_SOURCE,$VOLUME_NAME_SOURCE,$VOLUME_ID_SOURCE" \
 --output json \
---tag-specifications "ResourceType=snapshot,$TAGS")
+--tag-specifications "ResourceType=snapshot,$AWS_TAGS")
 echo $SNAPSHOT |jq  >  $GENDIR/ebs-snapshot.json
 
 export SNAPSHOT_ID=$(cat $GENDIR/ebs-snapshot.json |jq -r '.SnapshotId')
@@ -42,7 +41,7 @@ echo "create volume for $SNAPSHOT_ID"
 export SNAPSHOT_VOLUME=$(aws ec2 create-volume \
 --volume-type gp2 \
 --snapshot-id $SNAPSHOT_ID \
---tag-specifications "ResourceType=volume,$TAGS" \
+--tag-specifications "ResourceType=volume,$AWS_TAGS" \
 --availability-zone $AWS_DEFAULT_REGION \
 --output json)
 echo $SNAPSHOT_VOLUME |jq  >  $GENDIR/ebs-snapshot_volume.json
@@ -83,11 +82,7 @@ spec:
   resources:
     requests:
       storage: 50Gi  # Set your desired storage size
-EOF
-
-
-#Create the rescue pod that mount the snapshot volume and the new controller volume
-cat <<EOF | kubectl --namespace=$NAMESPACE_DESTINATION  apply -f -
+---
 apiVersion: v1
 kind: Pod
 metadata:
@@ -126,7 +121,12 @@ kubectl wait pod/rescue-pod  --for condition=ready
 kubectl exec -ti rescue-pod -- rsync -az --exclude="*/builds/" /tmp/jenkins_home_source/jobs/ /tmp/jenkins_home_destination/jobs
 
 #This command will sync all jobs and folders including history
-#kubectl exec -ti rescue-pod -- rsync -avz  /tmp/jenkins_home_source/jobs/ /tmp/jenkins_home_destination/jobs
+#kubectl exec -ti rescue-pod -- rsync -az  /tmp/jenkins_home_source/jobs/ /tmp/jenkins_home_destination/jobs
+
+
+#reload new Jobs from disk
+curl -L -s -u $TOKEN -XPOST  "https://ci.acaternberg.pscbdemos.com/$DOMAIN_DESTINATION/reload" \
+
 
 #Clean resources
 function cleanUpResources {
@@ -143,7 +143,3 @@ function cleanUpResources {
 }
 #https://www.putorius.net/using-trap-to-exit-bash-scripts-cleanly.html#google_vignette
 trap cleanUpResources  SIGINT SIGTERM ERR EXIT
-
-
-#reload new Jobs from disk
-#TODO: restart Controller ${DOMAIN_DESTINATION} or reload configuration from disk

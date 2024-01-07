@@ -6,9 +6,8 @@ source ./envvars.sh
 export CONTROLLER_NAME=${1:-$CONTROLLER_NAME}
 export CONTROLLER_URL=${BASE_URL}"/"${CONTROLLER_NAME}
 
-GENDIR=gen
-rm -rf $GENDIR
-mkdir -p $GENDIR
+
+
 
 function checkControllerOnline () {
   # We have to wait until ingress is created and we can call the Jenkins HealthCheck with state 200
