@@ -142,8 +142,8 @@ kubectl wait pod/rescue-pod  --for condition=ready --timeout=60s
 
 echo "########SYNC JOBS########"
 #This command will sync all jobs and folders excluding the build
-#time kubectl exec -ti rescue-pod -- rsync -avz --exclude="*/builds/" /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs/ /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs
-time kubectl exec -ti rescue-pod -- rsync -az  /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs/ /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs/
+time kubectl exec -ti rescue-pod -- rsync -avz --exclude="*/builds/" /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs/ /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs/
+#time kubectl exec -ti rescue-pod -- rsync -az  /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs/ /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs/
 
 #cp seems to faster rather than rsync
 time kubectl exec -ti rescue-pod -- cp -Rf /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/
