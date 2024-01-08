@@ -63,9 +63,10 @@ Example
 ./migrateTC2MC-separateNamespaceByEBSSnapshot.sh  myteam myteam-managed-controller cloudbees-core cloudbees-controllers
 ```
 
-# Params for 
 
 # Benchmark for rescue Pod approach
+
+Tested with EFS:
 
 * For testing purpose 2500 test jobs have been created on a Team Controller, see [templates/testjob.yaml](templates/testjob.yaml)
 * 2500 simple Pipeline jobs with 1 entry in the build history result in ~ 30.000 files  overall
