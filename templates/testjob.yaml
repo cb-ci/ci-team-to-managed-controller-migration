@@ -1,0 +1,27 @@
+kind: pipeline
+name: test
+concurrentBuild: true
+definition:
+  cpsFlowDefinition:
+    sandbox: true
+    script: |
+      pipeline {
+          agent none
+
+          stages {
+              stage('Hello') {
+                  steps {
+                      echo 'Hello World'
+                  }
+              }
+          }
+      }
+description: ''
+disabled: false
+displayName: test
+properties:
+  - pipelineTriggers:
+      triggers:
+        - githubPush: {
+        }
+resumeBlocked: false
