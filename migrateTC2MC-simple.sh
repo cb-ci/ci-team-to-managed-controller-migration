@@ -5,7 +5,8 @@ source ./envvars.sh
 #In case we trigger this script from a loop, it will take the controller name from the fhe first parameter $1
 export DOMAIN_SOURCE=${1:-$DOMAIN_SOURCE}
 export CONTROLLER_URL=${BASE_URL}"/"${DOMAIN_SOURCE}
-export NAMESPACE_CB_CORE=${2:-"cloudbees-core"}
+export NAMESPACE_DESTINATION=${2:-"cloudbees-core"}
+
 
 function checkControllerOnline () {
   # We have to wait until ingress is created and we can call the Jenkins HealthCheck with state 200
@@ -24,7 +25,7 @@ envsubst < templates/create-folder.yaml > $GENDIR/${DOMAIN_SOURCE}-folder.yaml
 
 # We switch to the cloudbees namespace, where the TC runs
 #kubens $NAMESPACE
-kubectl config set-context $(kubectl config current-context) --namespace=$NAMESPACE_CB_CORE
+kubectl config set-context $(kubectl config current-context) --namespace=$NAMESPACE_DESTINATION
 
 #CREATE MC CONTROLLER
 # We apply the cjoc-controller-items.yaml to cjoc. Cjoc will create a new MC for us using our $GENDIR/${DOMAIN_SOURCE}.yaml
