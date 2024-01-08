@@ -37,7 +37,8 @@ if you see the [migrateTC2MC.sh script](./migrateTC2MC-simple.sh), it contains t
 
 
 ## EFS: Migrate from TC to MC in a new namespace, using a rescue POD 
-see `./migrateTC2MC-separateNamespaceByEFS.sh `
+see `./migrateTC2MC-separateNamespaceByEFS.sh`
+
 Params:
 * 1: name of existing Team Controller
 * 2: name of target Managed Controller
@@ -52,6 +53,7 @@ Example
 ## EBS: Migrate from TC to MC in a new namespace, using a rescue POD and EBS Snapshot
 
 see `./migrateTC2MC-separateNamespaceByEBSSnapshot.sh`
+
 Params:
 * 1: name of existing Team Controller
 * 2: name of target Managed Controller
