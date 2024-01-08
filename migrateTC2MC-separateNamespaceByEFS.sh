@@ -1,6 +1,6 @@
 #! /bin/bash
 #enable debugging output
-set -x
+#set -x
 
 source ./envvars.sh
 
@@ -141,6 +141,7 @@ EOF
 kubectl wait pod/rescue-pod -n $NAMESPACE_DESTINATION  --for condition=ready --timeout=60s || false
 
 echo "########SYNC JOBS########"
+# see sync options https://repost.aws/knowledge-center/efs-copy-data-in-parallel
 #####rsync all jobs and folders excluding the build
 #with rsync we can exclude the build history, see filter --exclude="*/builds/"
 #time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- rsync -az --exclude="*/builds/" /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs/ /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs/
@@ -189,7 +190,7 @@ curl --data-urlencode "script=$(cat $GENDIR/update-credentials-folder-level.groo
 --user $TOKEN ${BASE_URL}/${DOMAIN_DESTINATION}/scriptText
 
 #reload new Jobs from disk
-curl -L -s -u $TOKEN -XPOST  "https://ci.acaternberg.pscbdemos.com/$DOMAIN_DESTINATION/reload" 2>&1 > /dev/bull
+curl -L -s -u $TOKEN -XPOST  "https://ci.acaternberg.pscbdemos.com/$DOMAIN_DESTINATION/reload" 2>&1 > /dev/null
 
 
 echo "########CLEANUP RESOURCES########"
@@ -205,7 +206,6 @@ function cleanUpResources {
 #https://www.putorius.net/using-trap-to-exit-bash-scripts-cleanly.html#google_vignette
 trap cleanUpResources  SIGINT SIGTERM ERR EXIT
 
-#migrate credentials
-./migrateCredentials.sh
+
 
 
