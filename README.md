@@ -24,6 +24,7 @@ To automate the migration from TC to MC, the following phases are required (take
 if you see the [migrateTC2MC.sh script](./migrateTC2MC-simple.sh), it contains the steps for the phases above.
 
 # How to start
+## Simple
 
 * Create a TC that you want to migrate to MC
   * Optional: For testing purposes, create some jobs on the TC (or use existing ones)
@@ -35,7 +36,7 @@ if you see the [migrateTC2MC.sh script](./migrateTC2MC-simple.sh), it contains t
 * See the `gen` dir and logs
 
 
-# EFS: Migrate from TC to MC in a new namespace, using a rescue POD 
+## EFS: Migrate from TC to MC in a new namespace, using a rescue POD 
 see `./migrateTC2MC-separateNamespaceByEFS.sh `
 Params:
 * 1: name of existing Team Controller
@@ -48,7 +49,7 @@ Example
 ./migrateTC2MC-separateNamespaceByEFS.sh  myteam myteam-managed-controller cloudbees-core cloudbees-controllers
 ``` 
 
-# EBS: Migrate from TC to MC in a new namespace, using a rescue POD and EBS Snapshot
+## EBS: Migrate from TC to MC in a new namespace, using a rescue POD and EBS Snapshot
 
 see `./migrateTC2MC-separateNamespaceByEBSSnapshot.sh`
 Params:
