@@ -47,7 +47,7 @@ Example
 
 # Benchmark for rescue Pod approach
 
-* For testing purpose 2500 jobs have been created on a Team Controller
+* For testing purpose 2500 test jobs have been created on a Team Controller, see [templates/testjob.yaml](templates/testjob.yaml)
 * 2500 simple Pipeline jobs with 1 entry in the build history result in ~ 30.000 files  overall
 * The job dir size is ~250 MB
 
