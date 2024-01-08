@@ -6,7 +6,7 @@
 export AWS_DEFAULT_REGION=us-east-1
 export BASE_URL="https://XXXXX"
 export CJOC_URL=${BASE_URL}"/cjoc"
-export TOKEN="USER:JENKINSTOKEN"
+export TOKEN="ADMINUSER:JENKINSTOKEN"
 export GENDIR=generated
 
 ########################################################
