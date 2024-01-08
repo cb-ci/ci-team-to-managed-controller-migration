@@ -152,7 +152,9 @@ echo "########SYNC JOBS########"
 #time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- find -L  /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs/  -type f | parallel -j 32 cp  -Rf {} /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs/
 
 ######cp seems to be the fastest approach
-time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- cp -Rf /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/
+#time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- cp -Rf /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/
+time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- sh -c "cd /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/;tar -czf /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs.tar.gz jobs"
+time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- sh -c "cd /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/;tar -xvzf jobs.tar.gz;rm jobs.tar.gz;"
 
 ##Follwoing 2 line are just for testing purose
 #time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- mkdir -p /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs/
