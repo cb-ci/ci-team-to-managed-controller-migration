@@ -20,7 +20,7 @@ jq -cr '.jobs[] | (.name)' <<< $(curl -u $TOKEN "$CJOC_URL/view/all/job/Teams/ap
 ) | while read teamcontroller; do
    echo "TC: $teamcontroller"
    # We can now call the migration script
-   # ./migrateTC2MC.sh $teamcontroller
+   # migrateTC2MC-simple.sh $teamcontroller
 done
 
 
