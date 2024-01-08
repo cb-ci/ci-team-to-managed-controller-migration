@@ -58,6 +58,10 @@ user	0m0.560s
 sys  	0m0.226s
 ```
 
+# Next Steps
+
+* Verify if S3 backup /restore is faster 
+
 # Extra stuff,not related to the migration script
 
 ## Migrate PVC to another namespace
@@ -88,4 +92,7 @@ see example https://webera.blog/recreate-an-existing-pvc-in-a-new-namespace-but-
 ````
 curl -u $TOKEN "https://$BASSE_URL/cjoc/view/all/job/Teams/api/json?depth=2&pretty=true?tree=jobs" | jq
 ````
+
+
+
 
