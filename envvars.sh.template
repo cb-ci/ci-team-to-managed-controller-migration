@@ -14,16 +14,3 @@ export GENDIR=generated
 export CONTROLLER_IMAGE_VERSION="2.426.2.2"
 export BUNDLE_NAME="master/controller-base"
 export STORAGE_CLASS="efs-sc"
-
-########################################################
-#Settings just for the migrateTC2MC.sh script
-export CREATE_MM_TEMPLATE_YAML=templates/create-mc.yaml
-export CREATE_MM_FOLDER_TEMPLATE_YAML=templates/create-folder.yaml
-export NAMESPACE_CB_CORE=cloudbees-core
-export CONTROLLER_NAME="wpg"
-export CONTROLLER_URL=${BASE_URL}"/"${CONTROLLER_NAME}
-
-
-
-rm -rf $GENDIR
-mkdir -p $GENDIR

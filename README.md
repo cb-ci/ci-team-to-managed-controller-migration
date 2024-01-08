@@ -15,10 +15,11 @@ Read about the required steps and background here:
 
 To automate the migration from TC to MC, the following phases are required (taken from he documentation links above) 
 
-* CREATE MC
+* CREATE MC: create a destination Managed Controller
 * ON MC: create target folder (where to migrate the Teams/teams root folder to )
 * COPY JOBS FROM TC TO MC 
 * MIGRATE CREDENTIALS
+* RELOAD MC configuration from disk
 
 if you see the [migrateTC2MC.sh script](./migrateTC2MC-simple.sh), it contains the steps for the phases above.
 
@@ -30,31 +31,32 @@ if you see the [migrateTC2MC.sh script](./migrateTC2MC-simple.sh), it contains t
   * ``` cp envvars.sh.template envvars.sh```
   * Adjust your variables in your `envvars.sh` file
 * Execute the migration script
-  * ```./migrateTC2MC.sh ```
+  * ```./migrateTC2MC-simple.sh ```
 * See the `gen` dir and logs
-* Optional: If you need to improve the copy performance you can use the [copy-jobs.sh](./copy-jobs.sh) to copy the jobs between team and managed Controllers
- * The copy script requires RWX storage class on the Controller PVCs.
- * If you have an RWO storage class you need to scale down the replica sets of the controllers before you execute the `copy-jobs.sh` script
 
-## Envvars
 
-| VARIABLE                         | VALUE/Example                | 
-|----------------------------------|------------------------------| 
-| `NAMESPACE_CB_CORE`              | cloudbees-core               | 
-| `BASE_URL`                       | https://ci.example.com       | 
-| `CJOC_URL`                       | ${BASE_URL}/cjoc             | 
-| `CONTROLLER_NAME`                | ciController001              | 
-| `CONTROLLER_IMAGE_VERSION`       | 2.401.2.5                    | 
-| `BUNDLE_NAME`                    | mycontrollerbundlename       |
-| `TOKEN`                          | user:123XYZ                  | 
-| `CREATE_MM_TEMPLATE_YAML`        | templates/create-mm.yaml     | 
-| `CREATE_MM_FOLDER_TEMPLATE_YAML` | templates/create-folder.yaml | 
-
-# EFS: Migrate from TC to MC in a new namespace
+# EFS: Migrate from TC to MC in a new namespace, using a rescue POD 
 
 Example
-> ./migrateTC2MC-separateNamespaceByEFS.sh  myteam myteam cloudbees-core cloudbees-controllers
+> ./migrateTC2MC-separateNamespaceByEFS.sh  myteam myteam-new cloudbees-core cloudbees-controllers
 
+# EBS: Migrate from TC to MC in a new namespace, using a rescue POD and EBS Snapshot
+
+Example
+> ./migrateTC2MC-separateNamespaceByEFS.sh  myteam myteam_new cloudbees-core cloudbees-controllers
+
+# Benchmark for rescue Pod approach
+
+* For testing purpose 2500 jobs have been created on a Team Controller
+* 2500 simple Pipeline jobs with 1 entry in the build history result in ~ 30.000 files  overall
+* The job dir size is ~250 MB
+
+Time consumed for a copy using a rescue PVC/POD
+```
+real	12m56.919s
+user	0m0.560s
+sys  	0m0.226s
+```
 
 # Extra stuff,not related to the migration script
 
