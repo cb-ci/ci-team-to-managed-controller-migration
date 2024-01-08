@@ -36,6 +36,12 @@ if you see the [migrateTC2MC.sh script](./migrateTC2MC-simple.sh), it contains t
 
 
 # EFS: Migrate from TC to MC in a new namespace, using a rescue POD 
+see `./migrateTC2MC-separateNamespaceByEFS.sh `
+Params:
+* 1: name of existing Team Controller
+* 2: name of target Managed Controller
+* 3: name of Team Controller namespace
+* 4: name of Managed Controller namespace
 
 Example
 ```
@@ -44,11 +50,19 @@ Example
 
 # EBS: Migrate from TC to MC in a new namespace, using a rescue POD and EBS Snapshot
 
+see `./migrateTC2MC-separateNamespaceByEBSSnapshot.sh`
+Params:
+* 1: name of existing Team Controller
+* 2: name of target Managed Controller
+* 3: name of Team Controller namespace
+* 4: name of Managed Controller namespace
+
 Example
 ```
-./migrateTC2MC-separateNamespaceByEFS.sh  myteam myteam-managed-controller cloudbees-core cloudbees-controllers
+./migrateTC2MC-separateNamespaceByEBSSnapshot.sh  myteam myteam-managed-controller cloudbees-core cloudbees-controllers
 ```
 
+# Params for 
 
 # Benchmark for rescue Pod approach
 
