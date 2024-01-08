@@ -9,7 +9,9 @@ Read about the required steps and background here:
 
 * https://docs.cloudbees.com/docs/cloudbees-ci-migration/latest/migrating-controllers/ 
 * https://docs.cloudbees.com/docs/cloudbees-ci-kb/latest/client-and-managed-controllers/migrating-jenkins-instances 
+* https://docs.cloudbees.com/docs/cloudbees-ci-migration/latest/splitting-controllers/modern-platforms#migrating-data
 * https://docs.cloudbees.com/docs/cloudbees-ci/latest/cloud-setup-guide/using-teams 
+* https://repost.aws/knowledge-center/efs-copy-data-in-parallel
 
 To automate the migration from TC to MC, the following phases are required (taken from he documentation links above) 
 
