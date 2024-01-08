@@ -12,7 +12,7 @@ export GENDIR=generated
 ########################################################
 ##casc
 export CONTROLLER_IMAGE_VERSION="2.426.2.2"
-export BUNDLE_NAME="master/controller0"
+export BUNDLE_NAME="master/controller-base"
 export STORAGE_CLASS="efs-sc"
 
 ########################################################
