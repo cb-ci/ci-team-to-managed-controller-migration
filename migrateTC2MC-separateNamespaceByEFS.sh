@@ -157,9 +157,14 @@ time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- cp -Rf /tmp/jenk
 #time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- sh -c "cd /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/;tar -czf /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs.tar.gz jobs"
 #time kubectl  -n $NAMESPACE_DESTINATION  exec -ti ${DOMAIN_DESTINATION}-0 -- bash -c "cd /var/jenkins_home/jobs/$DOMAIN_SOURCE/;tar -xzf jobs.tar.gz;rm jobs.tar.gz"
 
-##Follwoing 2 line are just for testing purpose
+##Follwoing 4 line are just for testing purpose
 #time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- mkdir -p /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs/
 #time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- cp -Rf /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs/helloworld /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs/
+
+#kubectl cp teams-${DOMAIN_SOURCE}-0:var/jenkins_home/jobs/${DOMAIN_SOURCE}/jobs/helloworld $GENDIR/teams-${DOMAIN_SOURCE}-jobs/
+#kubectl cp $GENDIR/teams-${DOMAIN_SOURCE}-jobs/. ${DOMAIN_SOURCE}-0:var/jenkins_home/jobs/${DOMAIN_SOURCE}/jobs
+
+
 
 
 # EXPORT FOLDER CREDENTIALS
