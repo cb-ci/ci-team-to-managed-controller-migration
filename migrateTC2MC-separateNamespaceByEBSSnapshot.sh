@@ -124,8 +124,6 @@ kubectl exec -ti rescue-pod -- rsync -az --exclude="*/builds/" /tmp/jenkins_home
 #kubectl exec -ti rescue-pod -- rsync -az  /tmp/jenkins_home_source/jobs/ /tmp/jenkins_home_destination/jobs
 
 
-#reload new Jobs from disk
-curl -L -s -u $TOKEN -XPOST  "https://ci.acaternberg.pscbdemos.com/$DOMAIN_DESTINATION/reload" \
 
 
 # EXPORT FOLDER CREDENTIALS
@@ -158,6 +156,8 @@ cat ./credentials-migration/update-credentials-system-level.groovy | sed  "s#^\/
 curl --data-urlencode "script=$(cat $GENDIR/update-credentials-folder-level.groovy)" \
 --user $TOKEN ${BASE_URL}/${DOMAIN_DESTINATION}/scriptText
 
+#reload new Jobs from disk
+curl -L -s -u $TOKEN -XPOST  "https://ci.acaternberg.pscbdemos.com/$DOMAIN_DESTINATION/reload" \
 
 #Clean resources
 function cleanUpResources {
