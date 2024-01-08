@@ -6,7 +6,7 @@ source ./envvars.sh
 
 #Name of the original Team or Managed Controller you want to copy jobs from
 export DOMAIN_SOURCE=${1:-"myteam"}
-#Teamcontrollers have always the prefix "teams-". If the source controller is a managed controller, set the DOMAIN_SOURCE_TEAM_PREFIX to empty string""
+#Teamcontrollers have always the prefix "teams-". If the source controller is a Managed Controller, set the DOMAIN_SOURCE_TEAM_PREFIX to empty string""
 #Team Controller prefix
 export DOMAIN_SOURCE_TEAM_PREFIX="teams-"
 #Managed Controller prefix
@@ -71,7 +71,6 @@ VOLUME_STORAGE_CLASSNAME_SOURCE=$(kubectl get pv $VOLUME_NAME_SOURCE -o   go-tem
 
 #create a rescue PV,PVC for the new volume. It references the original EFS filesystem
 cat <<EOF | kubectl -n $NAMESPACE_DESTINATION apply -f -
----
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -153,8 +152,8 @@ echo "########SYNC JOBS########"
 
 ######cp seems to be the fastest approach
 #time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- cp -Rf /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/
-time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- sh -c "cd /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/;tar -czf /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs.tar.gz jobs"
-time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- sh -c "cd /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/;tar -xvzf jobs.tar.gz;rm jobs.tar.gz;"
+#time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- sh -c "cd /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/;tar -czf /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs.tar.gz jobs"
+time kubectl  -n $NAMESPACE_DESTINATION  exec -ti ${DOMAIN_DESTINATION}-0 -- bash -c "cd $JENKINS_HOME/jobs/jobs/$DOMAIN_SOURCE/;tar -xzf jobs.tar.gz;rm jobs.tar.gz"
 
 ##Follwoing 2 line are just for testing purose
 #time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- mkdir -p /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs/
