@@ -31,19 +31,24 @@ if you see the [migrateTC2MC.sh script](./migrateTC2MC-simple.sh), it contains t
   * ``` cp envvars.sh.template envvars.sh```
   * Adjust your variables in your `envvars.sh` file
 * Execute the migration script
-  * ```./migrateTC2MC-simple.sh ```
+  * ```./migrateTC2MC-simple.sh myteam ```
 * See the `gen` dir and logs
 
 
 # EFS: Migrate from TC to MC in a new namespace, using a rescue POD 
 
 Example
-> ./migrateTC2MC-separateNamespaceByEFS.sh  myteam myteam-new cloudbees-core cloudbees-controllers
+```
+./migrateTC2MC-separateNamespaceByEFS.sh  myteam myteam-managed-controller cloudbees-core cloudbees-controllers
+``` 
 
 # EBS: Migrate from TC to MC in a new namespace, using a rescue POD and EBS Snapshot
 
 Example
-> ./migrateTC2MC-separateNamespaceByEFS.sh  myteam myteam_new cloudbees-core cloudbees-controllers
+```
+./migrateTC2MC-separateNamespaceByEFS.sh  myteam myteam-managed-controller cloudbees-core cloudbees-controllers
+```
+
 
 # Benchmark for rescue Pod approach
 
