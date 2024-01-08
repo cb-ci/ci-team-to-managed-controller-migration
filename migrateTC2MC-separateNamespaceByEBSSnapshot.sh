@@ -128,6 +128,37 @@ kubectl exec -ti rescue-pod -- rsync -az --exclude="*/builds/" /tmp/jenkins_home
 curl -L -s -u $TOKEN -XPOST  "https://ci.acaternberg.pscbdemos.com/$DOMAIN_DESTINATION/reload" \
 
 
+# EXPORT FOLDER CREDENTIALS
+echo "------------------  EXPORT FOLDER CREDENTIALS  ------------------"
+curl -o ./credentials-migration/export-credentials-folder-level.groovy https://raw.githubusercontent.com/cloudbees/jenkins-scripts/master/credentials-migration/export-credentials-folder-level.groovy
+curl --data-urlencode "script=$(cat ./credentials-migration/export-credentials-folder-level.groovy)" \
+--user $TOKEN ${BASE_URL}/teams-${DOMAIN_SOURCE}/scriptText  -o $GENDIR/test-folder.creds
+tail -n 1  $GENDIR/test-folder.creds | sed  -e "s#\[\"##g"  -e "s#\"\]##g"  | tee  $GENDIR/folder-imports.txt
+
+# IMPORT FOLDER CREDENTIALS
+echo "------------------  IMPORT FOLDER CREDENTIALS  ------------------"
+kubectl cp $GENDIR/folder-imports.txt ${DOMAIN_DESTINATION}-0:/var/jenkins_home/ -n $NAMESPACE_DESTINATION
+curl -o ./credentials-migration/update-credentials-folder-level.groovy https://raw.githubusercontent.com/cloudbees/jenkins-scripts/master/credentials-migration/update-credentials-folder-level.groovy
+cat ./credentials-migration/update-credentials-folder-level.groovy | sed  "s#^\/\/ encoded.*#encoded = [new File(\"/var\/jenkins_home\/folder-imports.txt\").text]#g" >  $GENDIR/update-credentials-folder-level.groovy
+curl --data-urlencode "script=$(cat $GENDIR/update-credentials-folder-level.groovy)" \
+--user $TOKEN ${BASE_URL}/${DOMAIN_DESTINATION}/scriptText
+
+# EXPORT SYSTEM CREDENTIALS
+echo "------------------  EXPORT SYSTEM CREDENTIALS  ------------------"
+curl -o ./credentials-migration/export-credentials-system-level.groovy https://raw.githubusercontent.com/cloudbees/jenkins-scripts/master/credentials-migration/export-credentials-system-level.groovy
+curl --data-urlencode "script=$(cat ./credentials-migration/export-credentials-system-level.groovy)" \
+--user $TOKEN ${BASE_URL}/teams-${DOMAIN_SOURCE}/scriptText  -o $GENDIR/test-system-folder.creds
+tail -n 1  $GENDIR/test-system-folder.creds | sed  -e "s#\[\"##g"  -e "s#\"\]##g"  | tee  $GENDIR/system-imports.txt
+
+# IMPORT SYSTEM CREDENTIALS
+echo "-------------------- IMPORT SYSTEM CREDENTIALS  ------------------"
+kubectl cp $GENDIR/system-imports.txt ${DOMAIN_DESTINATION}-0:/var/jenkins_home/  -n $NAMESPACE_DESTINATION
+curl -o ./credentials-migration/update-credentials-system-level.groovy https://raw.githubusercontent.com/cloudbees/jenkins-scripts/master/credentials-migration/update-credentials-system-level.groovy
+cat ./credentials-migration/update-credentials-system-level.groovy | sed  "s#^\/\/ encoded.*#encoded = [new File(\"/var\/jenkins_home\/system-imports.txt\").text]#g" >  $GENDIR/update-credentials-folder-level.groovy
+curl --data-urlencode "script=$(cat $GENDIR/update-credentials-folder-level.groovy)" \
+--user $TOKEN ${BASE_URL}/${DOMAIN_DESTINATION}/scriptText
+
+
 #Clean resources
 function cleanUpResources {
   echo "delete snapshot $SNAPSHOT_ID, we don't need it anymore"
@@ -144,5 +175,3 @@ function cleanUpResources {
 #https://www.putorius.net/using-trap-to-exit-bash-scripts-cleanly.html#google_vignette
 trap cleanUpResources  SIGINT SIGTERM ERR EXIT
 
-#migrate credentials
-./migrateCredentials.sh
