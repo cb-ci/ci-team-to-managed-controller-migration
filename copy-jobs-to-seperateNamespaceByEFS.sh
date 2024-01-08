@@ -5,20 +5,20 @@ set -x
 source ./envvars.sh
 
 #Name of the original Team or Managed Controller you want to copy jobs from
-DOMAIN_SOURCE=${1:-"myteam"}
+export DOMAIN_SOURCE=${1:-"myteam"}
 #Teamcontrollers have always the prefix "teams-". If the source controller is a managed controller, set the DOMAIN_SOURCE_TEAM_PREFIX to empty string""
 #Team Controller prefix
-DOMAIN_SOURCE_TEAM_PREFIX="teams-"
+export DOMAIN_SOURCE_TEAM_PREFIX="teams-"
 #Managed Controller prefix
 #DOMAIN_SOURCE_TEAM_PREFIX=""
 
 #Name of the destination Team or Managed Controller you want to copy jobs to
-DOMAIN_DESTINATION=${2:-"sepns-efs"}
+export DOMAIN_DESTINATION=${2:-"sepns-efs"}
 
 #Name of the original namespace where your $DOMAIN_SOURCE Controller is located
-NAMESPACE_SOURCE=${3:-"cloudbees-core"}
+export NAMESPACE_SOURCE=${3:-"cloudbees-core"}
 #Name of the destination namespace where your $DOMAIN_DESTINATION Controller is located
-NAMESPACE_DESTINATION=${4:-"cloudbees-controllers"}
+export NAMESPACE_DESTINATION=${4:-"cloudbees-controllers"}
 
 #Temporary dir for generated files and log files
 export GENDIR=generated
@@ -39,12 +39,12 @@ function checkControllerOnline () {
 # We apply the cjoc-controller-items.yaml to cjoc. Cjoc will create a new Managed Controller for us using our $GENDIR/${CONTROLLER_NAME}.yaml
 echo "------------------  CREATING MANAGED CONTROLLER ------------------"
 export CONTROLLER_NAME="${DOMAIN_DESTINATION}"
-envsubst < templates/create-mc.yaml > $GENDIR/${DOMAIN_DESTINATION}.yaml
+envsubst < templates/create-mc.yaml > $GENDIR/${DOMAIN_DESTINATION}-mc.yaml
 curl -XPOST \
    --user $TOKEN \
    "${CJOC_URL}/casc-items/create-items" \
     -H "Content-Type:text/yaml" \
-   --data-binary @$GENDIR/${DOMAIN_DESTINATION}.yaml
+   --data-binary @$GENDIR/${DOMAIN_DESTINATION}-mc.yaml
 # We wait until our new Managed Controller pod is up
 echo "------------------  WAITING FOR CONTROLLER TO COME UP ------------------"
 checkControllerOnline $BASE_URL/$DOMAIN_DESTINATION
@@ -138,15 +138,20 @@ spec:
 EOF
 
 #Wait until pod is up
-kubectl wait pod/rescue-pod  --for condition=ready --timeout=60s
+kubectl wait pod/rescue-pod -n $NAMESPACE_DESTINATION  --for condition=ready --timeout=60s || false
 
 echo "########SYNC JOBS########"
-#This command will sync all jobs and folders excluding the build
-time kubectl exec -ti rescue-pod -- rsync -az --exclude="*/builds/" /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs/ /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs/
-#time kubectl exec -ti rescue-pod -- rsync -az  /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs/ /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs/
+#####rsync all jobs and folders excluding the build
+#with rsync we can exclude the build history, see filter --exclude="*/builds/"
+#time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- rsync -az --exclude="*/builds/" /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs/ /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs/
+#time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- rsync -az  /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs/ /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs/
 
-#cp seems to faster rather than rsync
-time kubectl exec -ti rescue-pod -- cp -Rf /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/
+#####using parallel is not faster
+#time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- find -L   /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs/ -type f | parallel  rsync -az {}  /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs/
+#time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- find -L  /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs/  -type f | parallel -j 32 cp  -Rf {} /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs/
+
+######cp seems to be the fastest approach
+time kubectl  -n $NAMESPACE_DESTINATION    exec -ti rescue-pod -- cp -Rf /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/
 
 
 #reload new Jobs from disk
@@ -164,5 +169,8 @@ function cleanUpResources {
 }
 #https://www.putorius.net/using-trap-to-exit-bash-scripts-cleanly.html#google_vignette
 trap cleanUpResources  SIGINT SIGTERM ERR EXIT
+
+#migrate credentials
+./migrateCredentials.sh
 
 

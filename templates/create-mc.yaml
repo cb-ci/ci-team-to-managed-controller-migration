@@ -19,8 +19,9 @@ items:
       disk: 50
       readinessFailureThreshold: 100
       livenessTimeoutSeconds: 10
-      storageClassName: ssd-cloudbees-ci-cloudbees-core
-      domain:  ${CONTROLLER_NAME}
+      storageClassName: ${STORAGE_CLASS}
+      domain: ${CONTROLLER_NAME}
+      namespace: ${NAMESPACE_DESTINATION}
       livenessPeriodSeconds: 10
       javaOptions: -XshowSettings:vm -XX:+AlwaysPreTouch -XX:+UseG1GC -XX:+DisableExplicitGC
         -XX:+ParallelRefProcEnabled -XX:+UseStringDeduplication -Dhudson.slaves.NodeProvisioner.initialDelay=0

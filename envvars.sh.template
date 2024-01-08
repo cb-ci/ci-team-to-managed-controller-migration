@@ -1,5 +1,5 @@
 #! /bin/bash
-#! /bin/bash
+
 
 #########################################################
 #Common settings
@@ -13,6 +13,7 @@ export GENDIR=generated
 ##casc
 export CONTROLLER_IMAGE_VERSION="2.426.2.2"
 export BUNDLE_NAME="controller0"
+export STORAGE_CLASS="efs-sc"
 
 ########################################################
 #Settings just for the migrateTC2MC.sh script

@@ -143,3 +143,6 @@ function cleanUpResources {
 }
 #https://www.putorius.net/using-trap-to-exit-bash-scripts-cleanly.html#google_vignette
 trap cleanUpResources  SIGINT SIGTERM ERR EXIT
+
+#migrate credentials
+./migrateCredentials.sh
