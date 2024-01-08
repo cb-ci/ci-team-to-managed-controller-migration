@@ -47,7 +47,7 @@ Params:
 
 Example
 ```
-./migrateTC2MC-separateNamespaceByEFS.sh  myteam myteam-managed-controller cloudbees-core cloudbees-controllers
+./migrateTC2MC-separateNamespaceByEFS.sh  myteam-tc myteam-mc cloudbees-core cloudbees-controllers
 ``` 
 
 ## EBS: Migrate from TC to MC in a new namespace, using a rescue POD and EBS Snapshot
@@ -62,7 +62,7 @@ Params:
 
 Example
 ```
-./migrateTC2MC-separateNamespaceByEBSSnapshot.sh  myteam myteam-managed-controller cloudbees-core cloudbees-controllers
+./migrateTC2MC-separateNamespaceByEBSSnapshot.sh  myteam-tc myteam-mc cloudbees-core cloudbees-controllers
 ```
 
 
