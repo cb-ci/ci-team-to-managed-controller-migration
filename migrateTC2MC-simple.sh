@@ -20,6 +20,7 @@ function checkControllerOnline () {
 
 # We render the CasC template instances for cjoc-controller-items.yaml and the casc-folder (target folder)
 # All variables from the envvars.sh will be substituted
+export CONTROLLER_NAME=$DOMAIN_SOURCE
 envsubst < templates/create-mc.yaml > $GENDIR/${DOMAIN_SOURCE}-mc.yaml
 envsubst < templates/create-folder.yaml > $GENDIR/${DOMAIN_SOURCE}-folder.yaml
 
