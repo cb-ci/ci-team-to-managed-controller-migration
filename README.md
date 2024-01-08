@@ -34,7 +34,6 @@ if you see the [migrateTC2MC.sh script](./migrateTC2MC-simple.sh), it contains t
  * The copy script requires RWX storage class on the Controller PVCs.
  * If you have an RWO storage class you need to scale down the replica sets of the controllers before you execute the `copy-jobs.sh` script
 
-
 ## Envvars
 
 | VARIABLE                         | VALUE/Example                | 
@@ -49,6 +48,10 @@ if you see the [migrateTC2MC.sh script](./migrateTC2MC-simple.sh), it contains t
 | `CREATE_MM_TEMPLATE_YAML`        | templates/create-mm.yaml     | 
 | `CREATE_MM_FOLDER_TEMPLATE_YAML` | templates/create-folder.yaml | 
 
+# EFS: Migrate from TC to MC in a new namespace
+
+Example
+> ./migrateTC2MC-separateNamespaceByEFS.sh  myteam myteam cloudbees-core cloudbees-controllers
 
 
 # Extra stuff,not related to the migration script
