@@ -70,7 +70,7 @@ VOLUME_CAPACITY_STORAGE_SOURCE=$(kubectl get pv $VOLUME_NAME_SOURCE -o   go-temp
 VOLUME_STORAGE_CLASSNAME_SOURCE=$(kubectl get pv $VOLUME_NAME_SOURCE -o   go-template={{.spec.storageClassName}})
 
 #create a rescue PV,PVC for the new volume. It references the original EFS filesystem
-cat <<EOF | kubectl --namespace=$NAMESPACE_DESTINATION apply -f -
+cat <<EOF | kubectl -n $NAMESPACE_DESTINATION apply -f -
 ---
 ---
 apiVersion: v1
@@ -151,11 +151,46 @@ echo "########SYNC JOBS########"
 #time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- find -L  /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs/  -type f | parallel -j 32 cp  -Rf {} /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs/
 
 ######cp seems to be the fastest approach
-time kubectl  -n $NAMESPACE_DESTINATION    exec -ti rescue-pod -- cp -Rf /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/
+time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- cp -Rf /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/
 
+##Follwoing 2 line are just for testing purose
+#time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- mkdir -p /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs/
+#time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- cp -Rf /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs/helloworld /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs/
+
+
+# EXPORT FOLDER CREDENTIALS
+echo "------------------  EXPORT FOLDER CREDENTIALS  ------------------"
+curl -o ./credentials-migration/export-credentials-folder-level.groovy https://raw.githubusercontent.com/cloudbees/jenkins-scripts/master/credentials-migration/export-credentials-folder-level.groovy
+curl --data-urlencode "script=$(cat ./credentials-migration/export-credentials-folder-level.groovy)" \
+--user $TOKEN ${BASE_URL}/teams-${DOMAIN_SOURCE}/scriptText  -o $GENDIR/test-folder.creds
+tail -n 1  $GENDIR/test-folder.creds | sed  -e "s#\[\"##g"  -e "s#\"\]##g"  | tee  $GENDIR/folder-imports.txt
+
+# IMPORT FOLDER CREDENTIALS
+echo "------------------  IMPORT FOLDER CREDENTIALS  ------------------"
+kubectl cp $GENDIR/folder-imports.txt ${DOMAIN_DESTINATION}-0:/var/jenkins_home/ -n $NAMESPACE_DESTINATION
+curl -o ./credentials-migration/update-credentials-folder-level.groovy https://raw.githubusercontent.com/cloudbees/jenkins-scripts/master/credentials-migration/update-credentials-folder-level.groovy
+cat ./credentials-migration/update-credentials-folder-level.groovy | sed  "s#^\/\/ encoded.*#encoded = [new File(\"/var\/jenkins_home\/folder-imports.txt\").text]#g" >  $GENDIR/update-credentials-folder-level.groovy
+curl --data-urlencode "script=$(cat $GENDIR/update-credentials-folder-level.groovy)" \
+--user $TOKEN ${BASE_URL}/${DOMAIN_DESTINATION}/scriptText
+
+# EXPORT SYSTEM CREDENTIALS
+echo "------------------  EXPORT SYSTEM CREDENTIALS  ------------------"
+curl -o ./credentials-migration/export-credentials-system-level.groovy https://raw.githubusercontent.com/cloudbees/jenkins-scripts/master/credentials-migration/export-credentials-system-level.groovy
+curl --data-urlencode "script=$(cat ./credentials-migration/export-credentials-system-level.groovy)" \
+--user $TOKEN ${BASE_URL}/teams-${DOMAIN_SOURCE}/scriptText  -o $GENDIR/test-system-folder.creds
+tail -n 1  $GENDIR/test-system-folder.creds | sed  -e "s#\[\"##g"  -e "s#\"\]##g"  | tee  $GENDIR/system-imports.txt
+
+# IMPORT SYSTEM CREDENTIALS
+echo "-------------------- IMPORT SYSTEM CREDENTIALS  ------------------"
+kubectl cp $GENDIR/system-imports.txt ${DOMAIN_DESTINATION}-0:/var/jenkins_home/  -n $NAMESPACE_DESTINATION
+curl -o ./credentials-migration/update-credentials-system-level.groovy https://raw.githubusercontent.com/cloudbees/jenkins-scripts/master/credentials-migration/update-credentials-system-level.groovy
+cat ./credentials-migration/update-credentials-system-level.groovy | sed  "s#^\/\/ encoded.*#encoded = [new File(\"/var\/jenkins_home\/system-imports.txt\").text]#g" >  $GENDIR/update-credentials-folder-level.groovy
+curl --data-urlencode "script=$(cat $GENDIR/update-credentials-folder-level.groovy)" \
+--user $TOKEN ${BASE_URL}/${DOMAIN_DESTINATION}/scriptText
 
 #reload new Jobs from disk
-curl -L -s -u $TOKEN -XPOST  "https://ci.acaternberg.pscbdemos.com/$DOMAIN_DESTINATION/reload" \
+curl -L -s -u $TOKEN -XPOST  "https://ci.acaternberg.pscbdemos.com/$DOMAIN_DESTINATION/reload" 2>&1 > /dev/bull
+
 
 echo "########CLEANUP RESOURCES########"
 #Clean resources
