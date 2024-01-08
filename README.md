@@ -18,7 +18,7 @@ To automate the migration from TC to MC, the following phases are required (take
 * COPY JOBS FROM TC TO MC 
 * MIGRATE CREDENTIALS
 
-if you see the [migrateTC2MC.sh script](./migrateTC2MC.sh), it contains the steps for the phases above.
+if you see the [migrateTC2MC.sh script](./migrateTC2MC-simple.sh), it contains the steps for the phases above.
 
 # How to start
 
