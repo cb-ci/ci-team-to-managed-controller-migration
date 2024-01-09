@@ -161,11 +161,11 @@ time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- cp -Rf /tmp/jenk
 #time kubectl  -n $NAMESPACE_DESTINATION  exec -ti ${DOMAIN_DESTINATION}-0 -- bash -c "cd /var/jenkins_home/jobs/$DOMAIN_SOURCE/;tar -xzf jobs.tar.gz;rm jobs.tar.gz"
 
 
-#Here we copy just one hello world job for testing purposes and to reduce the time consumption
+######Here we copy just one hello world job for testing purposes and to reduce the time consumption
 #time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- mkdir -p /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs/
 #time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- cp -Rf /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs/helloworld /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/jobs/
 
-#Here we copy directly from the DOMAIN_SOURCE to a local workerstation/bastion host and then upload to the target DOMAIN_DESTINATION
+######Here we copy directly from the DOMAIN_SOURCE to a local workerstation/bastion host and then upload to the target DOMAIN_DESTINATION
 #The rescue Pod is not used here
 #kubectl cp teams-${DOMAIN_SOURCE}-0:var/jenkins_home/jobs/${DOMAIN_SOURCE}/jobs/helloworld $GENDIR/teams-${DOMAIN_SOURCE}-jobs/
 #kubectl cp $GENDIR/teams-${DOMAIN_SOURCE}-jobs/. ${DOMAIN_SOURCE}-0:var/jenkins_home/jobs/${DOMAIN_SOURCE}/jobs
