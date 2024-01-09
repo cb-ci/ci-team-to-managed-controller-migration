@@ -36,7 +36,7 @@ function checkControllerOnline () {
 }
 
 #CREATE MC CONTROLLER
-# We apply the cjoc-controller-items.yaml to cjoc. Cjoc will create a new Managed Controller for us using our $GENDIR/${CONTROLLER_NAME}.yaml
+# We apply the cjoc-controller-items.yaml to cjoc. Cjoc will create a new Managed Controller for us using our $GENDIR/${DOMAIN_DESTINATION}.yaml
 echo "------------------  CREATING MANAGED CONTROLLER ------------------"
 export CONTROLLER_NAME="${DOMAIN_DESTINATION}"
 envsubst < templates/create-mc.yaml > $GENDIR/${DOMAIN_DESTINATION}-mc.yaml
@@ -61,7 +61,7 @@ curl -v  -XPOST \
      -H "Content-Type:text/yaml" \
     --data-binary @${GENDIR}/${DOMAIN_SOURCE}-folder.yaml -o ${GENDIR}/${DOMAIN_SOURCE}-create-folder-output.log
 
-#Get the SOURCE JENKINS_HOME PV name where we want to take a snapshot from
+#Get the SOURCE JENKINS_HOME PV name where we want to copy from
 # We also get some attributes from from the original pv and pvc that we need to reclaim the EFS volume
 VOLUME_NAME_SOURCE=$(kubectl get "pvc/jenkins-home-${DOMAIN_SOURCE_TEAM_PREFIX}${DOMAIN_SOURCE}-0" -n ${NAMESPACE_SOURCE} -o go-template={{.spec.volumeName}})
 VOLUME_HANDLE_SOURCE=$(kubectl get pv $VOLUME_NAME_SOURCE -n ${NAMESPACE_SOURCE} -o go-template={{.spec.csi.volumeHandle}})
@@ -69,7 +69,7 @@ VOLUME_ATTRIBUTE_SOURCE=$(kubectl get pv $VOLUME_NAME_SOURCE -o   go-template={{
 VOLUME_CAPACITY_STORAGE_SOURCE=$(kubectl get pv $VOLUME_NAME_SOURCE -o   go-template={{.spec.capacity.storage}})
 VOLUME_STORAGE_CLASSNAME_SOURCE=$(kubectl get pv $VOLUME_NAME_SOURCE -o   go-template={{.spec.storageClassName}})
 
-#create a rescue PV,PVC,POD for the new volume. It references the original EFS filesystem
+#create a rescue PV,PVC,POD for the new volume. It references the original EFS filesystem of the $DOMAIN_SOURCE Controller
 cat <<EOF | kubectl -n $NAMESPACE_DESTINATION apply -f -
 ---
 apiVersion: v1
