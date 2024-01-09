@@ -144,7 +144,7 @@ echo "########SYNC JOBS########"
 ######copy jobs using the rescue pod. `cp` seems to be the fastest approach
 time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- cp -Rf /tmp/jenkins_home_source/jobs/$DOMAIN_SOURCE/jobs /tmp/jenkins_home_destination/jobs/$DOMAIN_SOURCE/
 
-#######TEST AND DEVELOPMENT: The following lines are just for testing purpose
+####### TEST AND DEVELOPMENT: The following commented lines are just for testing purpose
 
 # see sync options https://repost.aws/knowledge-center/efs-copy-data-in-parallel
 #####rsync all jobs and folders excluding the build
@@ -170,7 +170,7 @@ time kubectl  -n $NAMESPACE_DESTINATION  exec -ti rescue-pod -- cp -Rf /tmp/jenk
 #kubectl cp teams-${DOMAIN_SOURCE}-0:var/jenkins_home/jobs/${DOMAIN_SOURCE}/jobs/helloworld $GENDIR/teams-${DOMAIN_SOURCE}-jobs/
 #kubectl cp $GENDIR/teams-${DOMAIN_SOURCE}-jobs/. ${DOMAIN_SOURCE}-0:var/jenkins_home/jobs/${DOMAIN_SOURCE}/jobs
 
-#######END TEST AND DEVELOPMENT
+####### END TEST AND DEVELOPMENT
 
 
 
