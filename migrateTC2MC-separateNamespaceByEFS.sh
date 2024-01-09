@@ -37,7 +37,7 @@ function checkControllerOnline () {
 
 #CREATE MC CONTROLLER
 # We apply the cjoc-controller-items.yaml to cjoc. Cjoc will create a new Managed Controller for us using our $GENDIR/${DOMAIN_DESTINATION}.yaml
-echo "------------------  CREATING MANAGED CONTROLLER ------------------"
+echo "------------------  CREATING MANAGED CONTROLLER ${DOMAIN_DESTINATION}------------------"
 export CONTROLLER_NAME="${DOMAIN_DESTINATION}"
 envsubst < templates/create-mc.yaml > $GENDIR/${DOMAIN_DESTINATION}-mc.yaml
 curl -XPOST \
@@ -52,7 +52,7 @@ checkControllerOnline $BASE_URL/$DOMAIN_DESTINATION
 
 # Now we apply the target Folder to the Managed Controller.
 # This is the root folder where we want to migrate our credentials and jobs to
-echo "------------------  CREATING INITIAL TEAM FOLDER ------------------"
+echo "------------------  CREATING INITIAL TEAM FOLDER ${DOMAIN_SOURCE} on Managed Controller ${DOMAIN_DESTINATION}------------------"
 export CONTROLLER_NAME="${DOMAIN_SOURCE}"
 envsubst < templates/create-folder.yaml > ${GENDIR}/${DOMAIN_SOURCE}-folder.yaml
 curl -v  -XPOST \
