@@ -12,6 +12,7 @@ Read about the required steps and background here:
 * https://docs.cloudbees.com/docs/cloudbees-ci-migration/latest/splitting-controllers/modern-platforms#migrating-data
 * https://docs.cloudbees.com/docs/cloudbees-ci/latest/cloud-setup-guide/using-teams 
 * https://repost.aws/knowledge-center/efs-copy-data-in-parallel
+* https://aws.amazon.com/about-aws/whats-new/2019/05/aws-datasync-now-supports-efs-to-efs-transfer/
 
 To automate the migration from TC to MC, the following phases are required (taken from he documentation links above) 
 
