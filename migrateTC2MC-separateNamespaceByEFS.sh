@@ -13,7 +13,7 @@ export DOMAIN_SOURCE_TEAM_PREFIX="teams-"
 #DOMAIN_SOURCE_TEAM_PREFIX=""
 
 #Name of the destination Team or Managed Controller you want to copy jobs to
-export DOMAIN_DESTINATION=${2:-"sepns-efs"}
+export DOMAIN_DESTINATION=${2:-"myteam"}
 
 #Name of the original namespace where your $DOMAIN_SOURCE Controller is located
 export NAMESPACE_SOURCE=${3:-"cloudbees-core"}
