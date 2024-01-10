@@ -66,35 +66,38 @@ Example
 
 # Benchmark for rescue Pod approach
 
-How to create huge amount of job data:
+## How to create huge amount of job data:
+
 ```
 cd $JENKINS_HOME/jobs
 for i in {2501..25000};do cp -Rf testjob testjob-$i ;done
 ```
-How to identify the number of overall job files
+## How to identify the number of overall job files
+
 `find $JENKINS_HOME/jobs -type f | wc -l`
 
-Tested with EFS rescue pod:
+## Result for transfer data with EFS rescue pod:
 
 * For testing purpose 2500 test jobs have been created on a Team Controller, see [templates/testjob.yaml](templates/testjob.yaml)
 * 2500 simple Pipeline jobs with 1 entry in the build history result in ~ 30.000 files  overall
 * The job dir size is ~250 MB
 
 Time consumed for a copy using a rescue EFS PVC/POD
+
 ```
 real	12m56.919s
 user	0m0.560s
 sys  	0m0.226s
 ```
 
-Tested with EFS AWS data sync that seems to be the fastest approach:
+## Result when using EFS AWS data sync: 
 
 * 20491 jobs have been synced using AWS data sync EFS source-pvc-subdir -> EFS destination-pvc-subdir
 * ~2 GB of job data
 * 245898 jobs files overall have been synced
 * Time consumed (including verification): 11 minutes, 21 seconds
 
-# Conclusion: 
+## Conclusion: 
 
 * AWS data sync can transfer 8 times more job data in around about the same time compared to the rescue pod approach
 * In other words: Data sync is much faster! 
@@ -103,7 +106,7 @@ Tested with EFS AWS data sync that seems to be the fastest approach:
 
 # Next Steps
 
-* Verify if S3 backup /restore is faster 
+* TODO: add script for AWS data sync
 
 # Extra stuff,not related to the migration script
 
