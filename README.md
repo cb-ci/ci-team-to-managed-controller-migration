@@ -94,6 +94,12 @@ Tested with EFS AWS data sync that seems to be the fastest approach:
 * 245898 jobs files overall have been synced
 * Time consumed (including verification): 11 minutes, 21 seconds
 
+# Conclusion: 
+* AWS data sync can transfer 8 times more job data in around about the same time compared to the rescue pod approach
+* In other words: Data sync is much faster! 
+* AWS documentation says it is up tp 10 times faster compared to any other approach  
+* TODO: add link for AWS doc
+
 # Next Steps
 
 * Verify if S3 backup /restore is faster 
