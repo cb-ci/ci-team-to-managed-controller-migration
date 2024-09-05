@@ -17,7 +17,7 @@ Read about the required steps and background here:
 
 To automate the migration from TC to MC, the following phases are required (taken from he documentation links above) 
 
-* CREATE MC: create a destination Managed Controller
+* CREATE MC: create a destination-managed Controller
 * ON MC: create target folder (where to migrate the Teams/teams root folder to )
 * COPY JOBS FROM TC TO MC 
 * MIGRATE CREDENTIALS
@@ -79,7 +79,7 @@ for i in {2501..25000};do cp -Rf testjob testjob-$i ;done
 
 ## Result for transfer data with EFS rescue pod:
 
-* For testing purpose 2500 test jobs have been created on a Team Controller, see [templates/testjob.yaml](templates/testjob.yaml)
+* For testing purposes 2500 test jobs have been created on a Team Controller, see [templates/testjob.yaml](templates/testjob.yaml)
 * 2500 simple Pipeline jobs with 1 entry in the build history result in ~ 30.000 files  overall
 * The job dir size is ~250 MB
 
@@ -100,10 +100,12 @@ sys  	0m0.226s
 
 ## Conclusion: 
 
-* AWS data sync can transfer 8 times more job data in around about the same time compared to the rescue pod approach
+* AWS data sync can transfer 8 times more job data at around about the same time compared to the rescue pod approach
 * In other words: Data sync is much faster! 
-* AWS documentation says it is up tp 10 times faster compared to any other approach  
-* TODO: add link for AWS doc
+* AWS documentation says it is up to 10 times faster compared to any other approach  
+* see
+* https://docs.aws.amazon.com/datasync/latest/userguide/create-efs-location.html
+* https://docs.aws.amazon.com/prescriptive-guidance/latest/patterns/synchronize-data-between-amazon-efs-file-systems-in-different-aws-regions-by-using-aws-datasync.html
 
 # Next Steps
 
