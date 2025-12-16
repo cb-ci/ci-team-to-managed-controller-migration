@@ -1,89 +1,151 @@
-# CloudBees Team Controller to Managed Controller-Migration
+# CloudBees Team Controller to Managed Controller Migration
 
-# Objective
+This repository provides scripts and resources to automate the migration of Jenkins instances from CloudBees Team Controllers (TC) to Managed Controllers (MC) on Kubernetes platforms.
 
-This repo is about the automation steps that are required to migrate CloudBees Team Controller (**TC**) to Managed Controllers (**MC**).
-The scripts is just done for K8s Platforms, CI traditional has not been done yet. 
+## Objective
 
-Read about the required steps and background here:
+The primary goal is to automate the steps required to migrate a Team Controller and its data to a new Managed Controller. This includes creating the new controller, migrating jobs, and handling credentials.
 
-* https://docs.cloudbees.com/docs/cloudbees-ci-migration/latest/migrating-controllers/ 
-* https://docs.cloudbees.com/docs/cloudbees-ci-kb/latest/client-and-managed-controllers/migrating-jenkins-instances 
-* https://docs.cloudbees.com/docs/cloudbees-ci-migration/latest/splitting-controllers/modern-platforms#migrating-data
-* https://docs.cloudbees.com/docs/cloudbees-ci/latest/cloud-setup-guide/using-teams 
-* https://repost.aws/knowledge-center/efs-copy-data-in-parallel
-* https://aws.amazon.com/about-aws/whats-new/2019/05/aws-datasync-now-supports-efs-to-efs-transfer/
-* https://docs.aws.amazon.com/datasync/latest/userguide/configure-data-verification-options.html
+---
 
-To automate the migration from TC to MC, the following phases are required (taken from he documentation links above) 
+## Table of Contents
 
-* CREATE MC: create a destination-managed Controller
-* ON MC: create target folder (where to migrate the Teams/teams root folder to )
-* COPY JOBS FROM TC TO MC 
-* MIGRATE CREDENTIALS
-* RELOAD MC configuration from disk
+- [Overview](#overview)
+- [Prerequisites](#prerequisites)
+- [Configuration](#configuration)
+- [Usage](#usage)
+  - [EFS Method](#efs-method)
+  - [EBS Method](#ebs-method)
+- [Performance Benchmarks](#performance-benchmarks)
+- [Future Work](#future-work)
+- [Appendix](#appendix)
+  - [Technical Notes](#technical-notes)
+  - [Helpful Links](#helpful-links)
 
+---
 
-# How to start
+## Overview
 
-* Create a TC that you want to migrate to MC
-  * Optional: For testing purposes, create some jobs on the TC (or use existing ones)
-* copy `envvars.sh.template`  to `envvars.sh`
-  * ``` cp envvars.sh.template envvars.sh```
-  * Adjust your variables in your `envvars.sh` file
-* Execute the migration script, see below
-* See the `gen` dir and logs
+The migration process involves several phases, based on the official CloudBees documentation:
 
+1.  **Create MC**: A new destination Managed Controller is created.
+2.  **Create Target Folder**: A folder is created on the new MC to house the migrated data.
+3.  **Copy Jobs**: Job configurations and history are copied from the TC to the MC.
+4.  **Migrate Credentials**: Credentials are exported from the TC and imported into the MC.
+5.  **Reload Configuration**: The MC is reloaded to apply the new changes.
 
-## EFS: Migrate from TC to MC in a new namespace, using a rescue POD 
-see `./migrateTC2MC-separateNamespaceByEFS.sh`
+This repository provides two main approaches for the "Copy Jobs" phase, depending on your underlying storage solution:
 
-Params:
-* 1: name of existing Team Controller
-* 2: name of target Managed Controller
-* 3: name of Team Controller namespace
-* 4: name of Managed Controller namespace
+*   **EFS**: Uses a temporary "rescue" Pod to mount the EFS-based Persistent Volume Claims (PVCs) from both the source TC and the target MC to perform the copy.
+*   **EBS**: Clones the source EBS-based volume using a snapshot and attaches it to the new MC.
 
-Example
+---
+
+## Prerequisites
+
+Before starting the migration, ensure you have the following tools installed and configured:
+
+*   `kubectl`: To interact with your Kubernetes cluster.
+*   `oc`: (If using OpenShift) The OpenShift Command-Line Interface.
+*   `aws-cli`: (If using AWS services like EFS DataSync) The AWS Command-Line Interface.
+*   Access to the Kubernetes cluster where CloudBees CI is running.
+
+---
+
+## Configuration
+
+The migration scripts rely on environment variables set in a dedicated file.
+
+1.  **Create the configuration file:**
+    Copy the template to create your own environment file.
+
+    ```bash
+    cp envvars.sh.template envvars.sh
+    ```
+
+2.  **Edit `envvars.sh`:**
+    Update the variables in `envvars.sh` to match your environment.
+
+| Variable                 | Description                                                                                             |
+| ------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `AWS_DEFAULT_REGION`     | The AWS region where your cluster is located.                                                           |
+| `BASE_URL`               | The base URL for your CloudBees CI instance (e.g., `https://your-cloudbees.example.com`).                 |
+| `CJOC_URL`               | The full URL for the CloudBees CI Operations Center. Defaults to `${BASE_URL}/cjoc`.                      |
+| `TOKEN`                  | Your Jenkins API token in the format `USER:APITOKEN`.                                                     |
+| `GENDIR`                 | The directory where generated artifacts will be stored. Defaults to `generated`.                          |
+| `CONTROLLER_IMAGE_VERSION` | The Docker image version to use for the new Managed Controller (e.g., `2.426.2.2`).                     |
+| `BUNDLE_NAME`            | The CasC bundle name for the new controller (e.g., `master/controller-base`).                             |
+| `STORAGE_CLASS`          | The Kubernetes StorageClass to use for the new controller's persistent volume (e.g., `efs-sc`).         |
+
+---
+
+## Usage
+
+After configuring your `envvars.sh` file, you can run the migration scripts. The scripts will create a `generated` directory containing logs and temporary files.
+
+### EFS Method
+
+This method is for environments where Jenkins home directories are stored on **EFS**. It works by creating a rescue pod that mounts both the source and destination PVCs to copy the data.
+
+**Script:** `migrateTC2MC-separateNamespaceByEFS.sh`
+
+**Parameters:**
+
+1.  `TC_NAME`: Name of the source Team Controller.
+2.  `MC_NAME`: Name for the target Managed Controller.
+3.  `TC_NAMESPACE`: Kubernetes namespace of the source TC.
+4.  `MC_NAMESPACE`: Kubernetes namespace for the target MC.
+
+**Example:**
+
+```bash
+# Source your environment variables
+source ./envvars.sh
+
+# Run the migration
+./migrateTC2MC-separateNamespaceByEFS.sh myteam-tc myteam-mc cloudbees-core cloudbees-controllers
 ```
-./migrateTC2MC-separateNamespaceByEFS.sh  myteam-tc myteam-mc cloudbees-core cloudbees-controllers
-``` 
 
-## EBS: Migrate from TC to MC in a new namespace, using a rescue POD and EBS Snapshot
+### EBS Method
 
-see `./migrateTC2MC-separateNamespaceByEBSSnapshot.sh`
+This method is for environments where Jenkins home directories are stored on **EBS**. It uses an EBS snapshot to clone the data.
 
-Params:
-* 1: name of existing Team Controller
-* 2: name of target Managed Controller
-* 3: name of Team Controller namespace
-* 4: name of Managed Controller namespace
+**Script:** `migrateTC2MC-separateNamespaceByEBSSnapshot.sh`
 
-Example
+**Parameters:**
+
+1.  `TC_NAME`: Name of the source Team Controller.
+2.  `MC_NAME`: Name for the target Managed Controller.
+3.  `TC_NAMESPACE`: Kubernetes namespace of the source TC.
+4.  `MC_NAMESPACE`: Kubernetes namespace for the target MC.
+
+**Example:**
+
+```bash
+# Source your environment variables
+source ./envvars.sh
+
+# Run the migration
+./migrateTC2MC-separateNamespaceByEBSSnapshot.sh myteam-tc myteam-mc cloudbees-core cloudbees-controllers
 ```
-./migrateTC2MC-separateNamespaceByEBSSnapshot.sh  myteam-tc myteam-mc cloudbees-core cloudbees-controllers
-```
 
+---
 
-# Benchmark for rescue Pod approach
+## Performance Benchmarks
 
-## How to create huge amount of job data:
+Performance testing was conducted to compare different data transfer methods.
 
-```
-cd $JENKINS_HOME/jobs
-for i in {2501..25000};do cp -Rf testjob testjob-$i ;done
-```
-## How to identify the number of overall job files
+### Test Data Generation
 
-`find $JENKINS_HOME/jobs -type f | wc -l`
+A large number of jobs were generated for testing purposes:
 
-## Result for transfer data with EFS rescue pod:
+*   **To create test data:** `for i in {1..25000}; do cp -Rf testjob testjob-$i; done`
+*   **To count files:** `find $JENKINS_HOME/jobs -type f | wc -l`
 
-* For testing purposes 2500 test jobs have been created on a Team Controller, see [templates/testjob.yaml](templates/testjob.yaml)
-* 2500 simple Pipeline jobs with 1 entry in the build history result in ~ 30.000 files  overall
-* The job dir size is ~250 MB
+### EFS Rescue Pod Approach
 
-Time consumed for a copy using a rescue EFS PVC/POD
+*   **Test Load**: 2,500 simple pipeline jobs (~30,000 files, ~250 MB).
+*   **Time Taken**: **~13 minutes**.
 
 ```
 real	12m56.919s
@@ -91,57 +153,42 @@ user	0m0.560s
 sys  	0m0.226s
 ```
 
-## Result when using EFS AWS data sync: 
+### AWS EFS DataSync Approach
 
-* 20491 jobs have been synced using AWS data sync EFS source-pvc-subdir -> EFS destination-pvc-subdir
-* ~2 GB of job data
-* 245898 jobs files overall have been synced
-* Time consumed (including verification): 11 minutes, 21 seconds
+*   **Test Load**: 20,491 jobs (~246,000 files, ~2 GB).
+*   **Time Taken**: **~11 minutes** (including verification).
 
-## Conclusion: 
+### Conclusion
 
-* AWS data sync can transfer 8 times more job data at around about the same time compared to the rescue pod approach
-* In other words: Data sync is much faster! 
-* AWS documentation says it is up to 10 times faster compared to any other approach  
-* see
-* https://docs.aws.amazon.com/datasync/latest/userguide/create-efs-location.html
-* https://docs.aws.amazon.com/prescriptive-guidance/latest/patterns/synchronize-data-between-amazon-efs-file-systems-in-different-aws-regions-by-using-aws-datasync.html
+**AWS DataSync is significantly faster** than the rescue pod approach. It transferred over 8 times the amount of data in less time. AWS documentation suggests it can be up to 10x faster than other methods.
 
-# Next Steps
+---
 
-* TODO: add script for AWS data sync
+## Future Work
 
-# Extra stuff,not related to the migration script
+- [ ] Add a script to automate migration using **AWS DataSync**.
 
-## Migrate PVC to another namespace
+---
 
-see example https://webera.blog/recreate-an-existing-pvc-in-a-new-namespace-but-reusing-the-same-pv-without-data-loss-2c7326c0035a 
+## Appendix
 
-## JSON API 
-* https://www.cloudbees.com/blog/taming-jenkins-json-api-depth-and-tree
-* https://gist.github.com/justlaputa/5634984
-* https://garygeorge84.medium.com/jenkins-api-with-node-4d3826322367
+### Technical Notes
 
-## Examples
+*   **Migrating PVCs:** For manual PVC migration between namespaces, see this article: [Recreate an existing PVC in a new namespace](https://webera.blog/recreate-an-existing-pvc-in-a-new-namespace-but-reusing-the-same-pv-without-data-loss-2c7326c0035a).
+*   **Jenkins JSON API:** The Jenkins API can be used to query information about jobs and controllers.
+    *   Example: Get a list of all teams.
+        ```bash
+        curl -u $TOKEN "https://$BASE_URL/cjoc/view/all/job/Teams/api/json?pretty=true&tree=jobs[name,url]"
+        ```
 
-```
- curl -u $TOKEN "https://$BASSE_URL/cjoc/view/all/job/Teams/api/json?pretty=true&tree=jobs\[name,url\]"
-{
-  "_class" : "com.cloudbees.hudson.plugins.folder.Folder",
-  "jobs" : [
-    {
-      "_class" : "com.cloudbees.opscenter.server.model.ManagedMaster",
-      "name" : "team1",
-      "url" : "https://example.com/cjoc/view/all/job/Teams/job/team1/"
-    }
-  ]
-}
-```
+### Helpful Links
 
-````
-curl -u $TOKEN "https://$BASSE_URL/cjoc/view/all/job/Teams/api/json?depth=2&pretty=true?tree=jobs" | jq
-````
-
-
-
-
+*   **CloudBees Documentation**
+    *   [Migrating Controllers](https://docs.cloudbees.com/docs/cloudbees-ci-migration/latest/migrating-controllers/)
+    *   [KB: Migrating Jenkins Instances](https://docs.cloudbees.com/docs/cloudbees-ci-kb/latest/client-and-managed-controllers/migrating-jenkins-instances)
+    *   [Splitting Controllers on Modern Platforms](https://docs.cloudbees.com/docs/cloudbees-ci-migration/latest/splitting-controllers/modern-platforms#migrating-data)
+    *   [Using Teams](https://docs.cloudbees.com/docs/cloudbees-ci/latest/cloud-setup-guide/using-teams)
+*   **AWS Documentation**
+    *   [Using AWS DataSync to transfer data between Amazon EFS file systems](https://aws.amazon.com/about-aws/whats-new/2019/05/aws-datasync-now-supports-efs-to-efs-transfer/)
+    *   [Configure data verification options with DataSync](https://docs.aws.amazon.com/datasync/latest/userguide/configure-data-verification-options.html)
+    *   [Pattern: Synchronize data between Amazon EFS file systems](https://docs.aws.amazon.com/prescriptive-guidance/latest/patterns/synchronize-data-between-amazon-efs-file-systems-in-different-aws-regions-by-using-aws-datasync.html)
